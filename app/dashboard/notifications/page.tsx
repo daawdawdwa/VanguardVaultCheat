@@ -42,12 +42,12 @@ export default function NotificationsPage() {
     <div>
       <div className="mb-6 flex items-center justify-between">
         <h1 className="font-display text-2xl font-bold tracking-tight">
-          Notifications {unread > 0 && <span className="text-muted-foreground">({unread} unread)</span>}
+          การแจ้งเตือน {unread > 0 && <span className="text-muted-foreground">({unread} ยังไม่ได้อ่าน)</span>}
         </h1>
         {unread > 0 && (
           <button onClick={markAllRead} className="flex items-center gap-1.5 text-sm text-primary hover:underline">
             <Check className="h-4 w-4" />
-            Mark all read
+            ทำเครื่องหมายว่าอ่านทั้งหมด
           </button>
         )}
       </div>
@@ -55,7 +55,7 @@ export default function NotificationsPage() {
       {notifications.length === 0 ? (
         <div className="rounded-2xl border border-border bg-card p-12 text-center">
           <Bell className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
-          <p className="text-muted-foreground">No notifications yet.</p>
+          <p className="text-muted-foreground">ยังไม่มีการแจ้งเตือน</p>
         </div>
       ) : (
         <div className="space-y-2">
