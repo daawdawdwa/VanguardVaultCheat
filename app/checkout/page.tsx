@@ -25,7 +25,7 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     if (!user) {
-      toast.error('Please sign in to checkout');
+      toast.error('กรุณาเข้าสู่ระบบก่อนดำเนินการชำระเงิน');
       router.push('/login');
       return;
     }
@@ -57,30 +57,30 @@ export default function CheckoutPage() {
       .maybeSingle();
     setLoading(false);
     if (error || !data) {
-      toast.error('Invalid coupon code');
+      toast.error('รหัสคูปองไม่ถูกต้อง');
       setCoupon(null);
       return;
     }
     if (!data.active) {
-      toast.error('This coupon is no longer active');
+      toast.error('คูปองนี้ไม่สามารถใช้งานได้แล้ว');
       return;
     }
     if (data.expires_at && new Date(data.expires_at) < new Date()) {
-      toast.error('This coupon has expired');
+      toast.error('คูปองนี้หมดอายุแล้ว');
       return;
     }
     if (data.usage_limit && data.used_count >= data.usage_limit) {
-      toast.error('This coupon has reached its usage limit');
+      toast.error('คูปองนี้ถูกใช้งานครบตามจำนวนจำกัดแล้ว');
       return;
     }
     setCoupon({ type: data.type, value: data.value });
-    toast.success('Coupon applied');
+    toast.success('ใช้คูปองสำเร็จ');
   };
 
   const placeOrder = async () => {
     if (!user) return;
     if (wallet === null || wallet < total) {
-      toast.error('Insufficient wallet balance. Please top up first.');
+      toast.error('ยอดเงินในกระเป๋าไม่เพียงพอ กรุณาเติมเงินก่อน');
       return;
     }
     setPlacing(true);
@@ -150,10 +150,10 @@ export default function CheckoutPage() {
       });
 
       clear();
-      toast.success('Order placed! Your keys are ready in your dashboard.');
+      toast.success('สั่งซื้อสำเร็จ! คีย์ของคุณพร้อมใช้งานแล้วในแดชบอร์ด');
       router.push(`/dashboard/orders/${order.id}`);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Checkout failed');
+      toast.error(err instanceof Error ? err.message : 'การชำระเงินล้มเหลว');
     } finally {
       setPlacing(false);
     }
@@ -162,10 +162,10 @@ export default function CheckoutPage() {
   if (items.length === 0) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-20 text-center">
-        <h1 className="font-display text-2xl font-bold">Your cart is empty</h1>
-        <p className="mt-2 text-muted-foreground">Add some games before checking out.</p>
+        <h1 className="font-display text-2xl font-bold">ตะกร้าสินค้าของคุณว่างเปล่า</h1>
+        <p className="mt-2 text-muted-foreground">เพิ่มเกมลงในตะกร้าก่อนดำเนินการชำระเงิน</p>
         <Link href="/products" className="mt-6 inline-block">
-          <Button className="gradient-primary text-white hover:opacity-90">Browse Products</Button>
+          <Button className="gradient-primary text-white hover:opacity-90">เลือกดูสินค้า</Button>
         </Link>
       </div>
     );
@@ -175,16 +175,16 @@ export default function CheckoutPage() {
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
       <Link href="/products" className="mb-6 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
         <ArrowLeft className="h-4 w-4" />
-        Continue shopping
+        เลือกซื้อสินค้าต่อ
       </Link>
 
-      <h1 className="mb-8 font-display text-3xl font-bold tracking-tight">Checkout</h1>
+      <h1 className="mb-8 font-display text-3xl font-bold tracking-tight">ชำระเงิน</h1>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-5">
         {/* Items */}
         <div className="lg:col-span-3">
           <div className="rounded-2xl border border-border bg-card p-6">
-            <h2 className="mb-4 font-display text-lg font-semibold">Order Items</h2>
+            <h2 className="mb-4 font-display text-lg font-semibold">รายการสินค้า</h2>
             <ul className="space-y-4">
               {items.map((item) => {
                 const price = discountedPrice(item.product);
@@ -199,7 +199,7 @@ export default function CheckoutPage() {
                     <div className="flex flex-1 items-center justify-between">
                       <div>
                         <p className="text-sm font-medium">{item.product.title}</p>
-                        <p className="text-xs text-muted-foreground">Qty: {item.quantity}</p>
+                        <p className="text-xs text-muted-foreground">จำนวน: {item.quantity}</p>
                       </div>
                       <span className="text-sm font-semibold">{formatPrice(price * item.quantity)}</span>
                     </div>
@@ -217,13 +217,13 @@ export default function CheckoutPage() {
             animate={{ opacity: 1, y: 0 }}
             className="sticky top-20 rounded-2xl border border-border bg-card p-6"
           >
-            <h2 className="mb-4 font-display text-lg font-semibold">Summary</h2>
+            <h2 className="mb-4 font-display text-lg font-semibold">สรุปคำสั่งซื้อ</h2>
 
             {/* Wallet balance */}
             <div className="mb-4 flex items-center justify-between rounded-xl border border-border bg-background p-3">
               <div className="flex items-center gap-2 text-sm">
                 <Wallet className="h-4 w-4 text-primary" />
-                Wallet Balance
+                ยอดเงินในกระเป๋า
               </div>
               <span className="text-sm font-semibold">{wallet !== null ? formatPrice(wallet) : '—'}</span>
             </div>
@@ -235,33 +235,33 @@ export default function CheckoutPage() {
                 <Input
                   value={couponCode}
                   onChange={(e) => setCouponCode(e.target.value)}
-                  placeholder="Coupon code"
+                  placeholder="รหัสคูปอง"
                   className="bg-card pl-9"
                 />
               </div>
               <Button variant="outline" onClick={applyCoupon} disabled={loading}>
-                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Apply'}
+                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'ใช้คูปอง'}
               </Button>
             </div>
 
             {/* Totals */}
             <div className="space-y-2 border-t border-border pt-4 text-sm">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Subtotal</span>
+                <span className="text-muted-foreground">ยอดรวมสินค้า</span>
                 <span>{formatPrice(subtotal)}</span>
               </div>
               {discount > 0 && (
                 <div className="flex justify-between text-primary">
-                  <span>Discount</span>
+                  <span>ส่วนลด</span>
                   <span>-{formatPrice(discount)}</span>
                 </div>
               )}
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Tax (7%)</span>
+                <span className="text-muted-foreground">ภาษี (7%)</span>
                 <span>{formatPrice(tax)}</span>
               </div>
               <div className="flex justify-between border-t border-border pt-2 text-base font-bold">
-                <span>Total</span>
+                <span>ยอดชำระสุทธิ</span>
                 <span>{formatPrice(total)}</span>
               </div>
             </div>
@@ -274,24 +274,24 @@ export default function CheckoutPage() {
               {placing ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : wallet !== null && wallet < total ? (
-                'Insufficient balance'
+                'ยอดเงินไม่เพียงพอ'
               ) : (
                 <>
                   <Check className="mr-2 h-4 w-4" />
-                  Pay {formatPrice(total)}
+                  ชำระเงิน {formatPrice(total)}
                 </>
               )}
             </Button>
 
             {wallet !== null && wallet < total && (
               <Link href="/dashboard/wallet" className="mt-3 block text-center text-xs text-primary hover:underline">
-                Top up your wallet
+                เติมเงินเข้ากระเป๋าของคุณ
               </Link>
             )}
 
             <div className="mt-4 flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
               <ShieldCheck className="h-3 w-3" />
-              Secure wallet-based checkout
+              ชำระเงินผ่านระบบกระเป๋าเงินปลอดภัย
             </div>
           </motion.div>
         </div>
