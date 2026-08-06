@@ -89,22 +89,22 @@ export default function AffiliatePage() {
   const copyLink = () => {
     navigator.clipboard.writeText(referralLink);
     setCopied(true);
-    toast.success('Referral link copied');
+    toast.success('คัดลอกลิงก์แนะนำแล้ว');
     setTimeout(() => setCopied(false), 2000);
   };
 
   const requestWithdraw = async (e: React.FormEvent) => {
     e.preventDefault();
     const amt = parseFloat(withdrawAmount);
-    if (!amt || amt <= 0) { toast.error('Enter a valid amount'); return; }
-    if (!aff || amt > aff.pending_earnings) { toast.error('Insufficient pending earnings'); return; }
+    if (!amt || amt <= 0) { toast.error('กรุณาระบุจำนวนเงินที่ถูกต้อง'); return; }
+    if (!aff || amt > aff.pending_earnings) { toast.error('ยอดเงินรอดำเนินการไม่เพียงพอ'); return; }
     setSubmitting(true);
     const { error } = await supabase.from('affiliate_withdrawals').insert({
       affiliate_id: user!.id, amount: amt, status: 'pending',
     });
     setSubmitting(false);
     if (error) { toast.error(error.message); return; }
-    toast.success('Withdrawal requested');
+    toast.success('ส่งคำขอถอนเงินเรียบร้อยแล้ว');
     setWithdrawAmount('');
     logActivity('affiliate_withdraw', 'affiliate', { amount: amt });
     load();
@@ -113,15 +113,15 @@ export default function AffiliatePage() {
   if (loading) return <div className="flex h-32 items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>;
 
   const stats = [
-    { label: 'Total Earnings', value: formatPrice(aff?.total_earnings ?? 0), icon: DollarSign },
-    { label: 'Pending', value: formatPrice(aff?.pending_earnings ?? 0), icon: TrendingUp },
-    { label: 'Withdrawn', value: formatPrice(aff?.withdrawn_earnings ?? 0), icon: Wallet },
-    { label: 'Referrals', value: String(referrals.length), icon: Users },
+    { label: 'รายได้ทั้งหมด', value: formatPrice(aff?.total_earnings ?? 0), icon: DollarSign },
+    { label: 'รอดำเนินการ', value: formatPrice(aff?.pending_earnings ?? 0), icon: TrendingUp },
+    { label: 'ถอนแล้ว', value: formatPrice(aff?.withdrawn_earnings ?? 0), icon: Wallet },
+    { label: 'ผู้ถูกแนะนำ', value: String(referrals.length), icon: Users },
   ];
 
   return (
     <div>
-      <h1 className="mb-8 font-display text-2xl font-bold tracking-tight">Affiliate Program</h1>
+      <h1 className="mb-8 font-display text-2xl font-bold tracking-tight">โปรแกรมแนะนำเพื่อน (Affiliate)</h1>
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {stats.map((s) => (
@@ -138,7 +138,7 @@ export default function AffiliatePage() {
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div className="rounded-2xl border border-border bg-card p-6">
           <h2 className="mb-4 flex items-center gap-2 font-display text-lg font-semibold">
-            <Link2 className="h-5 w-5 text-primary" />Your Referral Link
+            <Link2 className="h-5 w-5 text-primary" />ลิงก์แนะนำของคุณ
           </h2>
           <div className="flex gap-2">
             <Input value={referralLink} readOnly className="bg-card" />
@@ -147,39 +147,39 @@ export default function AffiliatePage() {
             </Button>
           </div>
           <div className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
-            <QrCode className="h-4 w-4" />Referral code: <span className="font-mono text-foreground">{aff?.referral_code}</span>
+            <QrCode className="h-4 w-4" />โค้ดแนะนำ: <span className="font-mono text-foreground">{aff?.referral_code}</span>
           </div>
           <div className="mt-2 text-sm text-muted-foreground">
-            Commission rate: <span className="text-primary font-semibold">{aff?.commission_rate}%</span>
+            อัตราค่าคอมมิชชัน: <span className="text-primary font-semibold">{aff?.commission_rate}%</span>
           </div>
           {aff?.status !== 'active' && (
             <div className="mt-3 rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
-              Your affiliate account is {aff?.status}
+              บัญชีแนะนำเพื่อนของคุณอยู่ในสถานะ: {aff?.status}
             </div>
           )}
         </div>
 
         <div className="rounded-2xl border border-border bg-card p-6">
           <h2 className="mb-4 flex items-center gap-2 font-display text-lg font-semibold">
-            <Wallet className="h-5 w-5 text-primary" />Request Withdrawal
+            <Wallet className="h-5 w-5 text-primary" />ขอถอนเงิน
           </h2>
           <form onSubmit={requestWithdraw} className="space-y-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Amount (USD)</label>
+              <label className="text-sm font-medium">จำนวนเงิน (USD)</label>
               <Input type="number" step="0.01" min="1" value={withdrawAmount} onChange={(e) => setWithdrawAmount(e.target.value)} placeholder="0.00" className="bg-card" />
             </div>
             <Button type="submit" disabled={submitting} className="w-full gradient-primary text-white hover:opacity-90">
-              {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Request Withdrawal'}
+              {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'ส่งคำขอถอนเงิน'}
             </Button>
           </form>
           {withdrawals.length > 0 && (
             <div className="mt-4">
-              <h3 className="mb-2 text-sm font-medium text-muted-foreground">Recent Withdrawals</h3>
+              <h3 className="mb-2 text-sm font-medium text-muted-foreground">ประวัติการถอนเงินล่าสุด</h3>
               <ul className="space-y-2">
                 {withdrawals.map((w) => (
                   <li key={w.id} className="flex items-center justify-between rounded-lg border border-border bg-background p-2 text-sm">
                     <span>{formatPrice(w.amount)}</span>
-                    <span className="capitalize text-muted-foreground">{w.status}</span>
+                    <span className="capitalize text-muted-foreground">{w.status === 'pending' ? 'รอดำเนินการ' : w.status === 'completed' ? 'สำเร็จ' : w.status}</span>
                   </li>
                 ))}
               </ul>
@@ -189,20 +189,20 @@ export default function AffiliatePage() {
       </div>
 
       <div className="mt-6 rounded-2xl border border-border bg-card p-6">
-        <h2 className="mb-4 font-display text-lg font-semibold">Your Referrals</h2>
+        <h2 className="mb-4 font-display text-lg font-semibold">รายชื่อผู้ที่คุณแนะนำ</h2>
         {referrals.length === 0 ? (
-          <p className="py-6 text-center text-sm text-muted-foreground">No referrals yet. Share your link to start earning.</p>
+          <p className="py-6 text-center text-sm text-muted-foreground">ยังไม่มีผู้ถูกแนะนำ แชร์ลิงก์ของคุณเพื่อเริ่มสร้างรายได้</p>
         ) : (
           <div className="space-y-2">
             {referrals.map((r) => (
               <div key={r.id} className="flex items-center justify-between rounded-lg border border-border bg-background p-3">
                 <div>
-                  <p className="text-sm font-medium">{r.referred?.username ?? 'Anonymous'}</p>
-                  <p className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleDateString()}</p>
+                  <p className="text-sm font-medium">{r.referred?.username ?? 'ไม่ระบุชื่อ'}</p>
+                  <p className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleDateString('th-TH')}</p>
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="text-sm text-green-500">+{formatPrice(r.commission_earned)}</span>
-                  <span className="text-xs capitalize text-muted-foreground">{r.status}</span>
+                  <span className="text-xs capitalize text-muted-foreground">{r.status === 'completed' ? 'สำเร็จ' : r.status === 'pending' ? 'รอดำเนินการ' : r.status}</span>
                 </div>
               </div>
             ))}
@@ -211,17 +211,17 @@ export default function AffiliatePage() {
       </div>
 
       <div className="mt-6 rounded-2xl border border-border bg-card p-6">
-        <h2 className="mb-4 font-display text-lg font-semibold">Commission History</h2>
+        <h2 className="mb-4 font-display text-lg font-semibold">ประวัติค่าคอมมิชชัน</h2>
         {commissions.length === 0 ? (
-          <p className="py-6 text-center text-sm text-muted-foreground">No commissions yet.</p>
+          <p className="py-6 text-center text-sm text-muted-foreground">ยังไม่มีประวัติค่าคอมมิชชัน</p>
         ) : (
           <div className="space-y-2">
             {commissions.map((c) => (
               <div key={c.id} className="flex items-center justify-between rounded-lg border border-border bg-background p-3">
                 <span className="text-sm">{formatPrice(c.amount)}</span>
                 <div className="flex items-center gap-3">
-                  <span className="text-xs text-muted-foreground">{new Date(c.created_at).toLocaleDateString()}</span>
-                  <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs capitalize text-primary">{c.status}</span>
+                  <span className="text-xs text-muted-foreground">{new Date(c.created_at).toLocaleDateString('th-TH')}</span>
+                  <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs capitalize text-primary">{c.status === 'completed' ? 'สำเร็จ' : c.status === 'pending' ? 'รอดำเนินการ' : c.status}</span>
                 </div>
               </div>
             ))}
