@@ -59,19 +59,19 @@ export default function DashboardOverview() {
   }, [user]);
 
   const cards = [
-    { label: 'Wallet Balance', value: formatPrice(stats.wallet), icon: Wallet, href: '/dashboard/wallet' },
-    { label: 'Total Orders', value: stats.orders.toString(), icon: ShoppingBag, href: '/dashboard/orders' },
-    { label: 'Downloads', value: stats.downloads.toString(), icon: Download, href: '/dashboard/downloads' },
-    { label: 'License Keys', value: stats.keys.toString(), icon: Key, href: '/dashboard/keys' },
+    { label: 'ยอดเงินในกระเป๋า', value: formatPrice(stats.wallet), icon: Wallet, href: '/dashboard/wallet' },
+    { label: 'คำสั่งซื้อทั้งหมด', value: stats.orders.toString(), icon: ShoppingBag, href: '/dashboard/orders' },
+    { label: 'ดาวน์โหลด', value: stats.downloads.toString(), icon: Download, href: '/dashboard/downloads' },
+    { label: 'คีย์ลิขสิทธิ์', value: stats.keys.toString(), icon: Key, href: '/dashboard/keys' },
   ];
 
   return (
     <div>
       <div className="mb-8">
         <h1 className="font-display text-2xl font-bold tracking-tight">
-          Welcome back, {profile?.username ?? 'Player'}
+          ยินดีต้อนรับกลับ, {profile?.username ?? 'ผู้เล่น'}
         </h1>
-        <p className="mt-1 text-sm text-muted-foreground">Here is your account at a glance.</p>
+        <p className="mt-1 text-sm text-muted-foreground">ภาพรวมบัญชีของคุณ</p>
       </div>
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
@@ -92,22 +92,22 @@ export default function DashboardOverview() {
 
       <div className="mt-8 rounded-2xl border border-border bg-card p-6">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="font-display text-lg font-semibold">Recent Orders</h2>
+          <h2 className="font-display text-lg font-semibold">คำสั่งซื้อล่าสุด</h2>
           <Link href="/dashboard/orders" className="flex items-center gap-1 text-sm text-primary hover:underline">
-            View all
+            ดูทั้งหมด
             <ArrowRight className="h-3 w-3" />
           </Link>
         </div>
         {recentOrders.length === 0 ? (
           <p className="py-8 text-center text-sm text-muted-foreground">
-            No orders yet. <Link href="/products" className="text-primary hover:underline">Start shopping</Link>
+            ยังไม่มีคำสั่งซื้อ <Link href="/products" className="text-primary hover:underline">เลือกชมสินค้า</Link>
           </p>
         ) : (
           <ul className="space-y-2">
             {recentOrders.map((order) => (
               <li key={order.id} className="flex items-center justify-between rounded-lg border border-border bg-background p-3">
                 <div>
-                  <p className="text-sm font-medium">Order #{order.id.slice(0, 8)}</p>
+                  <p className="text-sm font-medium">คำสั่งซื้อ #{order.id.slice(0, 8)}</p>
                   <p className="text-xs text-muted-foreground">{new Date(order.created_at).toLocaleDateString()}</p>
                 </div>
                 <div className="flex items-center gap-3">
