@@ -35,13 +35,13 @@ export default function AdminAffiliatePage() {
 
   const updateStatus = async (id: string, status: string) => {
     await supabase.from('affiliate_profiles').update({ status }).eq('id', id);
-    toast.success(`Affiliate ${status}`);
+    toast.success(`อัปเดตสถานะพันธมิตรเป็น ${status} สำเร็จ`);
     load();
   };
 
   const updateRate = async (id: string, rate: number) => {
     await supabase.from('affiliate_profiles').update({ commission_rate: rate }).eq('id', id);
-    toast.success('Commission rate updated');
+    toast.success('อัปเดตอัตราค่าคอมมิชชันสำเร็จ');
     load();
   };
 
@@ -49,13 +49,13 @@ export default function AdminAffiliatePage() {
     await supabase.from('affiliate_withdrawals').update({ status: 'approved' }).eq('id', id);
     await supabase.from('affiliate_profiles').update({ pending_earnings: 0, withdrawn_earnings: amount }).eq('user_id', affiliateId);
     await supabase.from('commissions').update({ status: 'withdrawn' }).eq('affiliate_id', affiliateId).eq('status', 'approved');
-    toast.success('Withdrawal approved');
+    toast.success('อนุมัติการถอนเงินสำเร็จ');
     load();
   };
 
   const rejectWithdrawal = async (id: string) => {
     await supabase.from('affiliate_withdrawals').update({ status: 'rejected' }).eq('id', id);
-    toast.success('Withdrawal rejected');
+    toast.success('ปฏิเสธการถอนเงินแล้ว');
     load();
   };
 
@@ -63,18 +63,18 @@ export default function AdminAffiliatePage() {
 
   return (
     <div>
-      <h2 className="mb-6 font-display text-xl font-semibold">Affiliate Manager</h2>
+      <h2 className="mb-6 font-display text-xl font-semibold">จัดการระบบพันธมิตร (Affiliate)</h2>
 
       {withdrawals.length > 0 && (
         <div className="mb-8 rounded-2xl border border-border bg-card p-6">
           <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold">
-            <DollarSign className="h-4 w-4 text-primary" />Pending Withdrawals ({withdrawals.length})
+            <DollarSign className="h-4 w-4 text-primary" />คำขอถอนเงินที่รอการอนุมัติ ({withdrawals.length})
           </h3>
           <div className="space-y-2">
             {withdrawals.map((w) => (
               <div key={w.id} className="flex items-center justify-between rounded-lg border border-border bg-background p-3">
                 <div>
-                  <p className="text-sm font-medium">{w.profile?.username ?? 'Unknown'}</p>
+                  <p className="text-sm font-medium">{w.profile?.username ?? 'ไม่ทราบชื่อ'}</p>
                   <p className="text-xs text-muted-foreground">{formatPrice(w.amount)}</p>
                 </div>
                 <div className="flex gap-2">
@@ -91,18 +91,18 @@ export default function AdminAffiliatePage() {
         <table className="w-full">
           <thead>
             <tr className="border-b border-border bg-card">
-              <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">User</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Code</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Rate %</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Total</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Pending</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Status</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Actions</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">ผู้ใช้</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">รหัสแนะนำ</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">อัตรา (%)</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">ยอดรวม</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">รอดำเนินการ</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">สถานะ</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">จัดการ</th>
             </tr>
           </thead>
           <tbody>
             {affiliates.length === 0 ? (
-              <tr><td colSpan={7} className="px-4 py-8 text-center text-sm text-muted-foreground">No affiliates yet.</td></tr>
+              <tr><td colSpan={7} className="px-4 py-8 text-center text-sm text-muted-foreground">ยังไม่มีพันธมิตรในขณะนี้</td></tr>
             ) : (
               affiliates.map((a) => (
                 <tr key={a.id} className="border-b border-border last:border-0">
@@ -118,9 +118,9 @@ export default function AdminAffiliatePage() {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex gap-1">
-                      {a.status !== 'active' && <button onClick={() => updateStatus(a.id, 'active')} className="rounded border border-border px-2 py-1 text-xs hover:text-primary">Approve</button>}
-                      {a.status !== 'suspended' && <button onClick={() => updateStatus(a.id, 'suspended')} className="rounded border border-border px-2 py-1 text-xs hover:text-yellow-500">Suspend</button>}
-                      {a.status !== 'rejected' && <button onClick={() => updateStatus(a.id, 'rejected')} className="rounded border border-border px-2 py-1 text-xs hover:text-destructive">Reject</button>}
+                      {a.status !== 'active' && <button onClick={() => updateStatus(a.id, 'active')} className="rounded border border-border px-2 py-1 text-xs hover:text-primary">อนุมัติ</button>}
+                      {a.status !== 'suspended' && <button onClick={() => updateStatus(a.id, 'suspended')} className="rounded border border-border px-2 py-1 text-xs hover:text-yellow-500">ระงับ</button>}
+                      {a.status !== 'rejected' && <button onClick={() => updateStatus(a.id, 'rejected')} className="rounded border border-border px-2 py-1 text-xs hover:text-destructive">ปฏิเสธ</button>}
                     </div>
                   </td>
                 </tr>
