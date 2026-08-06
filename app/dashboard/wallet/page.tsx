@@ -116,7 +116,7 @@ export default function WalletPage() {
           </h2>
           <form onSubmit={submitTopup} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="amount">จำนวนเงิน (USD)</Label>
+              <Label htmlFor="amount">จำนวนเงิน (THB)</Label>
               <Input
                 id="amount"
                 type="number"
