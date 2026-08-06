@@ -53,25 +53,25 @@ export default function OrderDetailPage() {
   const copyKey = (key: string) => {
     navigator.clipboard.writeText(key);
     setCopied(key);
-    toast.success('Key copied to clipboard');
+    toast.success('คัดลอกคีย์ไปยังคลิปบอร์ดแล้ว');
     setTimeout(() => setCopied(null), 2000);
   };
 
   if (!order) {
-    return <div className="py-20 text-center text-muted-foreground">Loading order...</div>;
+    return <div className="py-20 text-center text-muted-foreground">กำลังโหลดคำสั่งซื้อ...</div>;
   }
 
   return (
     <div>
       <Link href="/dashboard/orders" className="mb-6 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
         <ArrowLeft className="h-4 w-4" />
-        Back to orders
+        กลับไปหน้าคำสั่งซื้อ
       </Link>
 
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="font-display text-2xl font-bold tracking-tight">
-            Order #{order.id.slice(0, 8)}
+            คำสั่งซื้อ #{order.id.slice(0, 8)}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {new Date(order.created_at).toLocaleDateString()} •
@@ -83,7 +83,7 @@ export default function OrderDetailPage() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2">
           <div className="rounded-2xl border border-border bg-card p-6">
-            <h2 className="mb-4 font-display text-lg font-semibold">Items</h2>
+            <h2 className="mb-4 font-display text-lg font-semibold">รายการสินค้า</h2>
             <ul className="space-y-4">
               {items.map((item) => (
                 <li key={item.id} className="flex flex-col gap-3 rounded-xl border border-border bg-background p-4 sm:flex-row sm:items-center">
@@ -95,7 +95,7 @@ export default function OrderDetailPage() {
                   </div>
                   <div className="flex-1">
                     <Link href={`/products/${item.product?.slug}`} className="text-sm font-medium hover:text-primary">
-                      {item.product?.title ?? 'Product'}
+                      {item.product?.title ?? 'สินค้า'}
                     </Link>
                     <p className="text-xs text-muted-foreground">{formatPrice(item.price)}</p>
                   </div>
@@ -112,7 +112,7 @@ export default function OrderDetailPage() {
                       </button>
                     </div>
                   ) : (
-                    <span className="text-xs text-muted-foreground">No key assigned</span>
+                    <span className="text-xs text-muted-foreground">ยังไม่มีคีย์</span>
                   )}
                 </li>
               ))}
@@ -121,31 +121,31 @@ export default function OrderDetailPage() {
         </div>
 
         <div className="rounded-2xl border border-border bg-card p-6">
-          <h2 className="mb-4 font-display text-lg font-semibold">Summary</h2>
+          <h2 className="mb-4 font-display text-lg font-semibold">สรุปคำสั่งซื้อ</h2>
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Subtotal</span>
+              <span className="text-muted-foreground">ยอดรวมย่อย</span>
               <span>{formatPrice(order.subtotal)}</span>
             </div>
             {order.discount > 0 && (
               <div className="flex justify-between text-primary">
-                <span>Discount</span>
+                <span>ส่วนลด</span>
                 <span>-{formatPrice(order.discount)}</span>
               </div>
             )}
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Tax</span>
+              <span className="text-muted-foreground">ภาษี</span>
               <span>{formatPrice(order.tax)}</span>
             </div>
             <div className="flex justify-between border-t border-border pt-2 text-base font-bold">
-              <span>Total</span>
+              <span>ยอดสุทธิ</span>
               <span>{formatPrice(order.total)}</span>
             </div>
           </div>
           <Link href="/dashboard/downloads" className="mt-6 block">
             <Button variant="outline" className="w-full">
               <Download className="mr-2 h-4 w-4" />
-              Go to Downloads
+              ไปยังหน้าดาวน์โหลด
             </Button>
           </Link>
         </div>
