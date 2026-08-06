@@ -20,7 +20,7 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password.length < 6) {
-      toast.error('Password must be at least 6 characters');
+      toast.error('รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร');
       return;
     }
     setLoading(true);
@@ -35,7 +35,7 @@ export default function RegisterPage() {
       return;
     }
     if (data.user) {
-      toast.success('Account created! You are now signed in.');
+      toast.success('สร้างบัญชีสำเร็จ! คุณเข้าสู่ระบบเรียบร้อยแล้ว');
       router.push('/dashboard');
       router.refresh();
     }
@@ -51,12 +51,12 @@ export default function RegisterPage() {
 
   return (
     <div className="glass-strong rounded-2xl border border-border p-8">
-      <h1 className="font-display text-2xl font-bold">Create account</h1>
-      <p className="mt-1 text-sm text-muted-foreground">Join GameVault and start collecting games.</p>
+      <h1 className="font-display text-2xl font-bold">สร้างบัญชี</h1>
+      <p className="mt-1 text-sm text-muted-foreground">เข้าร่วม GameVault และเริ่มสะสมเกมของคุณ</p>
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="username">Username</Label>
+          <Label htmlFor="username">ชื่อผู้ใช้</Label>
           <div className="relative">
             <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -70,7 +70,7 @@ export default function RegisterPage() {
           </div>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">อีเมล</Label>
           <div className="relative">
             <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -85,7 +85,7 @@ export default function RegisterPage() {
           </div>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="password">Password</Label>
+          <Label htmlFor="password">รหัสผ่าน</Label>
           <div className="relative">
             <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -94,19 +94,19 @@ export default function RegisterPage() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="At least 6 characters"
+              placeholder="อย่างน้อย 6 ตัวอักษร"
               className="bg-card pl-9"
             />
           </div>
         </div>
         <Button type="submit" disabled={loading} className="w-full gradient-primary text-white hover:opacity-90">
-          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Create account'}
+          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'สร้างบัญชี'}
         </Button>
       </form>
 
       <div className="my-6 flex items-center gap-3">
         <div className="h-px flex-1 bg-border" />
-        <span className="text-xs text-muted-foreground">OR</span>
+        <span className="text-xs text-muted-foreground">หรือ</span>
         <div className="h-px flex-1 bg-border" />
       </div>
 
@@ -120,9 +120,9 @@ export default function RegisterPage() {
       </div>
 
       <p className="mt-6 text-center text-sm text-muted-foreground">
-        Already have an account?{' '}
+        มีบัญชีอยู่แล้วใช่หรือไม่?{' '}
         <Link href="/login" className="text-primary hover:underline">
-          Sign in
+          เข้าสู่ระบบ
         </Link>
       </p>
     </div>
