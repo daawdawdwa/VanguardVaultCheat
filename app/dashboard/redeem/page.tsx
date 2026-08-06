@@ -39,12 +39,12 @@ export default function RedeemPage() {
       .eq('code', code.toUpperCase())
       .maybeSingle();
 
-    if (!redeemCode || !redeemCode.active) { setLoading(false); toast.error('Invalid or inactive code'); return; }
-    if (redeemCode.expires_at && new Date(redeemCode.expires_at) < new Date()) { setLoading(false); toast.error('This code has expired'); return; }
-    if (redeemCode.used_count >= redeemCode.max_usage) { setLoading(false); toast.error('This code has reached its usage limit'); return; }
+    if (!redeemCode || !redeemCode.active) { setLoading(false); toast.error('โค้ดไม่ถูกต้องหรือ,ปิดใช้งานแล้ว'); return; }
+    if (redeemCode.expires_at && new Date(redeemCode.expires_at) < new Date()) { setLoading(false); toast.error('โค้ดนี้หมดอายุแล้ว'); return; }
+    if (redeemCode.used_count >= redeemCode.max_usage) { setLoading(false); toast.error('โค้ดนี้ถูกใช้งานครบตามจำนวนจำกัดแล้ว'); return; }
 
     const { count: userUsage } = await supabase.from('redeem_usage').select('*', { count: 'exact', head: true }).eq('redeem_code_id', redeemCode.id).eq('user_id', user.id);
-    if ((userUsage ?? 0) >= redeemCode.per_user_limit) { setLoading(false); toast.error('You have reached the usage limit for this code'); return; }
+    if ((userUsage ?? 0) >= redeemCode.per_user_limit) { setLoading(false); toast.error('คุณใช้โค้ดนี้ครบจำนวนครั้งที่กำหนดแล้ว'); return; }
 
     if (redeemCode.type === 'wallet') {
       const { data: wallet } = await supabase.from('wallets').select('id, balance').eq('user_id', user.id).maybeSingle();
@@ -72,42 +72,42 @@ export default function RedeemPage() {
     await supabase.from('redeem_usage').insert({ redeem_code_id: redeemCode.id, user_id: user.id });
     await supabase.from('redeem_codes').update({ used_count: redeemCode.used_count + 1 }).eq('id', redeemCode.id);
 
-    createNotification(user.id, 'Code Redeemed', `You redeemed ${redeemCode.code} for ${redeemCode.type}`, 'success');
+    createNotification(user.id, 'ใช้โค้ดสำเร็จ', `คุณใช้โค้ด ${redeemCode.code} รับรางวัลประเภท ${redeemCode.type}`, 'success');
     logActivity('redeem_code', 'user', { code: redeemCode.code, type: redeemCode.type });
 
     setLoading(false);
     setCode('');
-    toast.success(`Redeemed! ${redeemCode.type} reward applied`);
+    toast.success(`แลกโค้ดสำเร็จ! ได้รับรางวัลประเภท ${redeemCode.type}`);
   };
 
   return (
     <div>
-      <h1 className="mb-8 font-display text-2xl font-bold tracking-tight">Redeem Codes</h1>
+      <h1 className="mb-8 font-display text-2xl font-bold tracking-tight">เติมโค้ดรางวัล</h1>
 
       <div className="max-w-lg rounded-2xl border border-border bg-card p-6">
         <h2 className="mb-4 flex items-center gap-2 font-display text-lg font-semibold">
-          <Gift className="h-5 w-5 text-primary" />Enter Code
+          <Gift className="h-5 w-5 text-primary" />กรอกโค้ด
         </h2>
         <form onSubmit={redeem} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="code">Redeem / Gift / Promo Code</Label>
+            <Label htmlFor="code">โค้ดแลกรางวัล / โค้ดของขวัญ / โค้ดโปรโมชัน</Label>
             <Input id="code" required value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="GV-XXXX-XXXX" className="bg-card font-mono" />
           </div>
           <Button type="submit" disabled={loading} className="w-full gradient-primary text-white hover:opacity-90">
-            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Redeem Code'}
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'แลกโค้ด'}
           </Button>
         </form>
       </div>
 
       {history.length > 0 && (
         <div className="mt-6 rounded-2xl border border-border bg-card p-6">
-          <h2 className="mb-4 font-display text-lg font-semibold">Redemption History</h2>
+          <h2 className="mb-4 font-display text-lg font-semibold">ประวัติการใช้โค้ด</h2>
           <ul className="space-y-2">
             {history.map((h) => (
               <li key={h.id} className="flex items-center justify-between rounded-lg border border-border bg-background p-3">
                 <div>
                   <p className="font-mono text-sm">{h.redeem_code?.code ?? '—'}</p>
-                  <p className="text-xs text-muted-foreground">{new Date(h.created_at).toLocaleDateString()}</p>
+                  <p className="text-xs text-muted-foreground">{new Date(h.created_at).toLocaleDateString('th-TH')}</p>
                 </div>
                 <span className="flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs capitalize text-primary">
                   <Check className="h-3 w-3" />{h.redeem_code?.type}
