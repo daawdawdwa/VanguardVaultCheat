@@ -6,33 +6,33 @@ import { ShieldCheck, Zap, Download, Wallet, Headphones, RefreshCw } from 'lucid
 const features = [
   {
     icon: Zap,
-    title: 'Instant Delivery',
-    description: 'License keys and download links appear in your dashboard the moment payment is confirmed.',
+    title: 'จัดส่งทันที',
+    description: 'คีย์ลิขสิทธิ์และลิงก์ดาวน์โหลดจะปรากฏในแดชบอร์ดของคุณทันทีที่การชำระเงินได้รับการยืนยัน',
   },
   {
     icon: ShieldCheck,
-    title: 'Secure Payments',
-    description: 'Wallet-based checkout with manual transfer, slip upload, and admin-approved top-ups.',
+    title: 'การชำระเงินที่ปลอดภัย',
+    description: 'การชำระเงินผ่านกระเป๋าเงินด้วยการโอนเงินผ่านธนาคาร อัปโหลดสลิป และการเติมเงินที่อนุมัติโดยผู้ดูแลระบบ',
   },
   {
     icon: Download,
-    title: 'Lifetime Downloads',
-    description: 'Re-download your purchased files anytime from your dashboard. No expiry on your library.',
+    title: 'ดาวน์โหลดได้ตลอดชีพ',
+    description: 'ดาวน์โหลดไฟล์ที่คุณซื้อซ้ำได้ตลอดเวลาจากแดชบอร์ดของคุณ ไม่มีวันหมดอายุในคลังของคุณ',
   },
   {
     icon: Wallet,
-    title: 'Wallet System',
-    description: 'Top up your balance once and check out in one click. Track every transaction.',
+    title: 'ระบบกระเป๋าเงิน',
+    description: 'เติมเงินเข้ายอดคงเหลือของคุณครั้งเดียวและชำระเงินได้ด้วยคลิกเดียว ติดตามทุกธุรกรรมได้',
   },
   {
     icon: RefreshCw,
-    title: 'Refund Ready',
-    description: 'Request refunds on eligible orders. Admins review and process them promptly.',
+    title: 'รองรับการคืนเงิน',
+    description: 'ขอคืนเงินสำหรับคำสั่งซื้อที่เข้าเงื่อนไข ผู้ดูแลระบบจะตรวจสอบและดำเนินการอย่างรวดเร็ว',
   },
   {
     icon: Headphones,
-    title: 'Real Support',
-    description: 'Open support tickets and get responses from our team directly in your dashboard.',
+    title: 'การสนับสนุนจริง',
+    description: 'เปิดตั๋วแจ้งปัญหาและรับการตอบกลับจากทีมงานของเราได้โดยตรงในแดชบอร์ดของคุณ',
   },
 ];
 
@@ -41,10 +41,10 @@ export function HomeFeatures() {
     <section className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
       <div className="mb-12 text-center">
         <h2 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">
-          Built for serious players
+          สร้างมาเพื่อผู้เล่นตัวจริง
         </h2>
         <p className="mt-2 text-muted-foreground">
-          Everything you need to buy, manage, and play your digital games.
+          ทุกสิ่งที่คุณต้องการสำหรับการซื้อ จัดการ และเล่นเกมดิจิทัลของคุณ
         </p>
       </div>
 
