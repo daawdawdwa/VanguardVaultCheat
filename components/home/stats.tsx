@@ -3,10 +3,10 @@
 import { motion } from 'framer-motion';
 
 const stats = [
-  { value: '12K+', label: 'Games sold' },
-  { value: '8K+', label: 'Happy customers' },
-  { value: '99.9%', label: 'Uptime' },
-  { value: '4.9/5', label: 'Average rating' },
+  { value: '12K+', label: 'เกมที่จำหน่ายแล้ว' },
+  { value: '8K+', label: 'ลูกค้าที่พึงพอใจ' },
+  { value: '99.9%', label: 'ความพร้อมใช้งาน' },
+  { value: '4.9/5', label: 'คะแนนเฉลี่ย' },
 ];
 
 export function HomeStats() {
