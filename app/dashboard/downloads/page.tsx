@@ -35,20 +35,20 @@ export default function DownloadsPage() {
       user_id: user!.id,
       file_id: fileId,
     });
-    toast.success(`Downloading ${fileName}...`);
+    toast.success(`กำลังดาวน์โหลด ${fileName}...`);
     // In production this would generate a signed URL from Supabase Storage
   };
 
   return (
     <div>
-      <h1 className="mb-8 font-display text-2xl font-bold tracking-tight">Downloads</h1>
+      <h1 className="mb-8 font-display text-2xl font-bold tracking-tight">ดาวน์โหลด</h1>
 
       {downloads.length === 0 ? (
         <div className="rounded-2xl border border-border bg-card p-12 text-center">
           <Download className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
-          <p className="text-muted-foreground">No downloads yet.</p>
+          <p className="text-muted-foreground">ยังไม่มีประวัติการดาวน์โหลด</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            Purchased files will appear here for lifetime access.
+            ไฟล์ที่ซื้อจะปรากฏที่นี่เพื่อให้คุณเข้าถึงได้ตลอดชีพ
           </p>
         </div>
       ) : (
@@ -63,16 +63,16 @@ export default function DownloadsPage() {
                   <FileText className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium">{dl.file?.file_name ?? 'Unknown file'}</p>
+                  <p className="text-sm font-medium">{dl.file?.file_name ?? 'ไฟล์ไม่ทราบชื่อ'}</p>
                   <p className="text-xs text-muted-foreground">
-                    {dl.file?.product?.title ?? ''} • Downloaded {dl.count}x
+                    {dl.file?.product?.title ? `${dl.file.product.title} • ` : ''}ดาวน์โหลดแล้ว {dl.count} ครั้ง
                   </p>
                 </div>
               </div>
               {dl.file && (
                 <Button size="sm" variant="outline" onClick={() => triggerDownload(dl.file!.id, dl.file!.file_name)}>
                   <Download className="mr-2 h-4 w-4" />
-                  Download
+                  ดาวน์โหลด
                 </Button>
               )}
             </div>
