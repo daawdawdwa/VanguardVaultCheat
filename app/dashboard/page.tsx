@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { Wallet, ShoppingBag, Download, Key, ArrowRight } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth-context';
-import { formatPrice } from '@/lib/helpers';
 
 type Stats = {
   wallet: number;
@@ -59,7 +58,7 @@ export default function DashboardOverview() {
   }, [user]);
 
   const cards = [
-    { label: 'ยอดเงินในกระเป๋า', value: formatPrice(stats.wallet), icon: Wallet, href: '/dashboard/wallet' },
+    { label: 'ยอดเงินในกระเป๋า', value: `฿${stats.wallet.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, icon: Wallet, href: '/dashboard/wallet' },
     { label: 'คำสั่งซื้อทั้งหมด', value: stats.orders.toString(), icon: ShoppingBag, href: '/dashboard/orders' },
     { label: 'ดาวน์โหลด', value: stats.downloads.toString(), icon: Download, href: '/dashboard/downloads' },
     { label: 'คีย์ลิขสิทธิ์', value: stats.keys.toString(), icon: Key, href: '/dashboard/keys' },
@@ -111,7 +110,7 @@ export default function DashboardOverview() {
                   <p className="text-xs text-muted-foreground">{new Date(order.created_at).toLocaleDateString()}</p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-sm font-semibold">{formatPrice(order.total)}</span>
+                  <span className="text-sm font-semibold">฿{order.total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                   <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs capitalize text-primary">
                     {order.status}
                   </span>
