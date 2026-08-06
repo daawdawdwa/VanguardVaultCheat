@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { Newspaper } from 'lucide-react';
 import { timeAgo } from '@/lib/helpers';
 
-export const metadata: Metadata = { title: 'News', description: 'Latest announcements and updates.' };
+export const metadata: Metadata = { title: 'ข่าวสาร', description: 'ประกาศและการอัปเดตล่าสุด' };
 
 export const revalidate = 60;
 
@@ -18,14 +18,14 @@ export default async function NewsPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8">
       <div className="mb-10 text-center">
-        <h1 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">News & Announcements</h1>
-        <p className="mt-2 text-muted-foreground">Stay up to date with the latest from GameVault.</p>
+        <h1 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">ข่าวสารและประกาศ</h1>
+        <p className="mt-2 text-muted-foreground">ติดตามข่าวสารและการอัปเดตล่าสุดจาก GameVault</p>
       </div>
 
       {announcements.length === 0 ? (
         <div className="rounded-2xl border border-border bg-card p-12 text-center">
           <Newspaper className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
-          <p className="text-muted-foreground">No announcements yet.</p>
+          <p className="text-muted-foreground">ยังไม่มีประกาศในขณะนี้</p>
         </div>
       ) : (
         <div className="space-y-4">
