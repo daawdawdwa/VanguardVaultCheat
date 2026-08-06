@@ -30,16 +30,16 @@ export default function AdminAnnouncementsPage() {
     e.preventDefault();
     const { error } = await supabase.from('announcements').insert({ title: form.title, content: form.content });
     if (error) { toast.error(error.message); return; }
-    toast.success('Announcement published');
+    toast.success('เผยแพร่ประกาศสำเร็จ');
     setShowForm(false);
     setForm({ title: '', content: '' });
     load();
   };
 
   const remove = async (id: string) => {
-    if (!confirm('Delete this announcement?')) return;
+    if (!confirm('คุณต้องการลบประกาศนี้ใช่หรือไม่?')) return;
     await supabase.from('announcements').delete().eq('id', id);
-    toast.success('Deleted');
+    toast.success('ลบประกาศสำเร็จ');
     load();
   };
 
@@ -50,10 +50,10 @@ export default function AdminAnnouncementsPage() {
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
-        <h2 className="font-display text-xl font-semibold">Announcements ({announcements.length})</h2>
+        <h2 className="font-display text-xl font-semibold">ประกาศทั้งหมด ({announcements.length})</h2>
         <Button onClick={() => setShowForm(true)} className="gradient-primary text-white hover:opacity-90">
           <Plus className="mr-2 h-4 w-4" />
-          New
+          สร้างประกาศ
         </Button>
       </div>
 
@@ -78,19 +78,19 @@ export default function AdminAnnouncementsPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
           <div className="glass-strong w-full max-w-md rounded-2xl border border-border p-6">
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="font-display text-lg font-semibold">New Announcement</h3>
+              <h3 className="font-display text-lg font-semibold">สร้างประกาศใหม่</h3>
               <button onClick={() => setShowForm(false)} className="text-muted-foreground hover:text-foreground"><X className="h-5 w-5" /></button>
             </div>
             <form onSubmit={create} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="title">Title</Label>
+                <Label htmlFor="title">หัวข้อประกาศ</Label>
                 <Input id="title" required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="bg-card" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="content">Content</Label>
+                <Label htmlFor="content">เนื้อหาประกาศ</Label>
                 <Textarea id="content" required value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} className="bg-card" rows={4} />
               </div>
-              <Button type="submit" className="w-full gradient-primary text-white hover:opacity-90">Publish</Button>
+              <Button type="submit" className="w-full gradient-primary text-white hover:opacity-90">เผยแพร่</Button>
             </form>
           </div>
         </div>
