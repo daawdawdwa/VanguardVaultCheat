@@ -12,20 +12,20 @@ import { cn } from '@/lib/utils';
 import type { ReactNode } from 'react';
 
 const adminLinks = [
-  { href: '/admin', label: 'Overview', icon: LayoutDashboard },
-  { href: '/admin/products', label: 'Products', icon: Package },
-  { href: '/admin/orders', label: 'Orders', icon: ShoppingBag },
-  { href: '/admin/keys', label: 'License Keys', icon: Key },
-  { href: '/admin/users', label: 'Users', icon: Users },
-  { href: '/admin/wallets', label: 'Wallets', icon: Wallet },
-  { href: '/admin/affiliates', label: 'Affiliates', icon: Users2 },
-  { href: '/admin/redeem', label: 'Redeem Codes', icon: Gift },
+  { href: '/admin', label: 'ภาพรวม', icon: LayoutDashboard },
+  { href: '/admin/products', label: 'สินค้า', icon: Package },
+  { href: '/admin/orders', label: 'คำสั่งซื้อ', icon: ShoppingBag },
+  { href: '/admin/keys', label: 'คีย์ลิขสิทธิ์', icon: Key },
+  { href: '/admin/users', label: 'ผู้ใช้งาน', icon: Users },
+  { href: '/admin/wallets', label: 'กระเป๋าเงิน', icon: Wallet },
+  { href: '/admin/affiliates', label: 'ระบบแนะนำเพื่อน', icon: Users2 },
+  { href: '/admin/redeem', label: 'โค้ดแลกรับ', icon: Gift },
   { href: '/admin/vip', label: 'VIP', icon: Crown },
-  { href: '/admin/coupons', label: 'Coupons', icon: Tag },
-  { href: '/admin/tickets', label: 'Tickets', icon: Ticket },
-  { href: '/admin/announcements', label: 'Announcements', icon: Newspaper },
-  { href: '/admin/promotions', label: 'Promotions', icon: ImagePlus },
-  { href: '/admin/logs', label: 'Activity Logs', icon: Activity },
+  { href: '/admin/coupons', label: 'คูปองส่วนลด', icon: Tag },
+  { href: '/admin/tickets', label: 'แจ้งปัญหา', icon: Ticket },
+  { href: '/admin/announcements', label: 'ประกาศ', icon: Newspaper },
+  { href: '/admin/promotions', label: 'โปรโมชัน', icon: ImagePlus },
+  { href: '/admin/logs', label: 'บันทึกกิจกรรม', icon: Activity },
 ];
 
 export function AdminShell({ children }: { children: ReactNode }) {
@@ -42,14 +42,14 @@ export function AdminShell({ children }: { children: ReactNode }) {
     return <div className="flex h-64 items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   }
   if (profile && profile.role !== 'admin' && profile.role !== 'moderator') {
-    return <div className="flex h-64 items-center justify-center text-sm text-muted-foreground">You do not have access to this area.</div>;
+    return <div className="flex h-64 items-center justify-center text-sm text-muted-foreground">คุณไม่มีสิทธิ์เข้าถึงส่วนนี้</div>;
   }
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
       <div className="mb-8">
-        <h1 className="font-display text-2xl font-bold tracking-tight">Admin Panel</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Manage your store, products, and customers.</p>
+        <h1 className="font-display text-2xl font-bold tracking-tight">แผงผู้ดูแลระบบ</h1>
+        <p className="mt-1 text-sm text-muted-foreground">จัดการร้านค้า สินค้า และลูกค้าของคุณ</p>
       </div>
       <div className="flex flex-col gap-6 lg:flex-row">
         <aside className="lg:w-56 lg:flex-shrink-0">
