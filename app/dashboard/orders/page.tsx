@@ -30,14 +30,14 @@ export default function OrdersPage() {
 
   return (
     <div>
-      <h1 className="mb-8 font-display text-2xl font-bold tracking-tight">Orders</h1>
+      <h1 className="mb-8 font-display text-2xl font-bold tracking-tight">คำสั่งซื้อ</h1>
 
       {orders.length === 0 ? (
         <div className="rounded-2xl border border-border bg-card p-12 text-center">
           <ShoppingBag className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
-          <p className="text-muted-foreground">No orders yet.</p>
+          <p className="text-muted-foreground">ยังไม่มีคำสั่งซื้อ</p>
           <Link href="/products" className="mt-4 inline-block">
-            <span className="text-primary hover:underline">Browse products</span>
+            <span className="text-primary hover:underline">เลือกชมสินค้า</span>
           </Link>
         </div>
       ) : (
@@ -49,7 +49,7 @@ export default function OrdersPage() {
               className="card-hover flex items-center justify-between rounded-xl border border-border bg-card p-4"
             >
               <div>
-                <p className="text-sm font-medium">Order #{order.id.slice(0, 8)}</p>
+                <p className="text-sm font-medium">คำสั่งซื้อ #{order.id.slice(0, 8)}</p>
                 <p className="text-xs text-muted-foreground">{new Date(order.created_at).toLocaleDateString()}</p>
               </div>
               <div className="flex items-center gap-4">
