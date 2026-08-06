@@ -20,21 +20,21 @@ export function HomeCta() {
 
         <div className="relative">
           <h2 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">
-            Ready to build your library?
+            พร้อมที่จะสร้างคลังเกมของคุณแล้วหรือยัง?
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-muted-foreground">
-            Create a free account, top up your wallet, and get instant access to premium game keys.
+            สร้างบัญชีฟรี เติมเงินเข้ากระเป๋าเงิน และเข้าถึงคีย์เกมพรีเมียมได้ทันที
           </p>
           <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link href="/register">
               <Button size="lg" className="gradient-primary text-white hover:opacity-90 glow-primary">
-                Get Started
+                เริ่มต้นใช้งาน
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
             <Link href="/products">
               <Button size="lg" variant="outline">
-                Browse Catalog
+                เรียกดูแคตตาล็อก
               </Button>
             </Link>
           </div>
