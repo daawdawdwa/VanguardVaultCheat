@@ -28,15 +28,15 @@ export default async function HomePage() {
           <div>
             <div className="mb-2 flex items-center gap-2 text-sm font-medium text-primary">
               <Sparkles className="h-4 w-4" />
-              <span>Featured Titles</span>
+              <span>สินค้าแนะนำ</span>
             </div>
             <h2 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">
-              Hand-picked premium games
+              เกมพรีเมียมคัดสรรพิเศษ
             </h2>
           </div>
           <Link href="/products" className="hidden sm:block">
             <Button variant="outline" size="sm">
-              View all
+              ดูทั้งหมด
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </Link>
@@ -58,15 +58,15 @@ export default async function HomePage() {
           <div>
             <div className="mb-2 flex items-center gap-2 text-sm font-medium text-primary">
               <Flame className="h-4 w-4" />
-              <span>Trending Now</span>
+              <span>กำลังเป็นกระแส</span>
             </div>
             <h2 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">
-              Popular this week
+              ยอดนิยมสัปดาห์นี้
             </h2>
           </div>
           <Link href="/products?sort=popular" className="hidden sm:block">
             <Button variant="outline" size="sm">
-              View all
+              ดูทั้งหมด
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </Link>
