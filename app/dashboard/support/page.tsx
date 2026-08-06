@@ -73,7 +73,7 @@ export default function SupportPage() {
       toast.error(error.message);
       return;
     }
-    toast.success('Ticket created');
+    toast.success('ส่งคำร้องเรียบร้อยแล้ว');
     setSubject('');
     setMessage('');
     load();
@@ -81,55 +81,55 @@ export default function SupportPage() {
 
   return (
     <div>
-      <h1 className="mb-8 font-display text-2xl font-bold tracking-tight">Support</h1>
+      <h1 className="mb-8 font-display text-2xl font-bold tracking-tight">ฝ่ายสนับสนุน</h1>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* New ticket */}
         <div className="rounded-2xl border border-border bg-card p-6">
           <h2 className="mb-4 flex items-center gap-2 font-display text-lg font-semibold">
             <Plus className="h-5 w-5 text-primary" />
-            New Ticket
+            สร้างคำร้องใหม่
           </h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="subject">Subject</Label>
+              <Label htmlFor="subject">หัวข้อ</Label>
               <Input
                 id="subject"
                 required
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
-                placeholder="Describe your issue"
+                placeholder="อธิบายปัญหาของคุณ"
                 className="bg-card"
               />
             </div>
             <div className="space-y-2">
-              <Label>Priority</Label>
+              <Label>ระดับความสำคัญ</Label>
               <Select value={priority} onValueChange={setPriority}>
                 <SelectTrigger className="bg-card">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="glass-strong">
-                  <SelectItem value="low">Low</SelectItem>
-                  <SelectItem value="normal">Normal</SelectItem>
-                  <SelectItem value="high">High</SelectItem>
-                  <SelectItem value="urgent">Urgent</SelectItem>
+                  <SelectItem value="low">ต่ำ</SelectItem>
+                  <SelectItem value="normal">ปกติ</SelectItem>
+                  <SelectItem value="high">สูง</SelectItem>
+                  <SelectItem value="urgent">ด่วน</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="message">Message</Label>
+              <Label htmlFor="message">ข้อความ</Label>
               <Textarea
                 id="message"
                 required
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                placeholder="Provide details about your issue..."
+                placeholder="ระบุรายละเอียดเกี่ยวกับปัญหาของคุณ..."
                 className="bg-card"
                 rows={4}
               />
             </div>
             <Button type="submit" disabled={submitting} className="w-full gradient-primary text-white hover:opacity-90">
-              {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Submit Ticket'}
+              {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'ส่งคำร้อง'}
             </Button>
           </form>
         </div>
@@ -138,10 +138,10 @@ export default function SupportPage() {
         <div className="rounded-2xl border border-border bg-card p-6">
           <h2 className="mb-4 flex items-center gap-2 font-display text-lg font-semibold">
             <MessageSquare className="h-5 w-5 text-primary" />
-            Your Tickets
+            คำร้องของคุณ
           </h2>
           {tickets.length === 0 ? (
-            <p className="py-8 text-center text-sm text-muted-foreground">No tickets yet.</p>
+            <p className="py-8 text-center text-sm text-muted-foreground">ยังไม่มีประวัติการส่งคำร้อง</p>
           ) : (
             <ul className="space-y-2">
               {tickets.map((t) => (
@@ -149,11 +149,11 @@ export default function SupportPage() {
                   <div className="flex items-center justify-between">
                     <p className="text-sm font-medium">{t.subject}</p>
                     <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs capitalize text-primary">
-                      {t.status}
+                      {t.status === 'open' ? 'เปิด' : t.status === 'pending' ? 'รอดำเนินการ' : t.status === 'closed' ? 'ปิดแล้ว' : t.status}
                     </span>
                   </div>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    {new Date(t.created_at).toLocaleDateString()} • {t.priority} priority
+                    {new Date(t.created_at).toLocaleDateString('th-TH')} • ความสำคัญระดับ {t.priority === 'low' ? 'ต่ำ' : t.priority === 'normal' ? 'ปกติ' : t.priority === 'high' ? 'สูง' : t.priority === 'urgent' ? 'ด่วน' : t.priority}
                   </p>
                 </li>
               ))}
