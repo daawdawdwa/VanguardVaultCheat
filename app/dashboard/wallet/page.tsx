@@ -11,7 +11,7 @@ import { formatPrice } from '@/lib/helpers';
 import { toast } from 'sonner';
 
 // เปลี่ยนเป็นเบอร์พร้อมเพย์ หรือ เลขบัตรประชาชนของคุณ
-const PROMPTPAY_NUMBER = "0801234567"; 
+const PROMPTPAY_NUMBER = "0963174205"; 
 
 type Tx = {
   id: string;
