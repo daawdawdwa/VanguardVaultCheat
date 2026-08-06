@@ -4,8 +4,8 @@ import { ArrowRight } from 'lucide-react';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Categories',
-  description: 'Browse games by category.',
+  title: 'หมวดหมู่สินค้า',
+  description: 'เรียกดูเกมตามหมวดหมู่',
 };
 
 export default async function CategoriesPage() {
@@ -14,8 +14,8 @@ export default async function CategoriesPage() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
       <div className="mb-8">
-        <h1 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">Categories</h1>
-        <p className="mt-2 text-muted-foreground">Find games by genre.</p>
+        <h1 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">หมวดหมู่สินค้า</h1>
+        <p className="mt-2 text-muted-foreground">ค้นหาเกมตามประเภท</p>
       </div>
 
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -40,7 +40,7 @@ export default async function CategoriesPage() {
                 <p className="mt-1 text-sm text-muted-foreground line-clamp-2">{cat.description}</p>
               )}
               <div className="mt-3 flex items-center gap-1 text-sm text-primary">
-                Browse games
+                ดูเกมทั้งหมด
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </div>
             </div>
