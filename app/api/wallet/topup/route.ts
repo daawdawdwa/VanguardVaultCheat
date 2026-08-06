@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { createClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
 
 const MY_ACCOUNT_NAME = process.env.MY_ACCOUNT_NAME || "สุริยันต์ ปันสาร"; 
@@ -8,10 +8,32 @@ const SLIPOK_BRANCH_ID = process.env.SLIPOK_BRANCH_ID || "73152";
 const TRUEMONEY_MOBILE = process.env.TRUEMONEY_MOBILE || "0963174205"; 
 
 export async function POST(request: Request) {
-  const supabase = createRouteHandlerClient({ cookies });
-  
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
+  const cookieStore = cookies();
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    { auth: { persistSession: false } }
+  );
+
+  let accessToken = '';
+  for (const cookie of cookieStore.getAll()) {
+    if (cookie.name.includes('auth-token')) {
+      try {
+        const parsed = JSON.parse(cookie.value);
+        accessToken = Array.isArray(parsed) ? parsed[0] : (parsed.access_token || cookie.value);
+      } catch {
+        accessToken = cookie.value;
+      }
+      break;
+    }
+  }
+
+  if (!accessToken) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const { data: { user }, error: authError } = await supabase.auth.getUser(accessToken);
+  if (authError || !user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
