@@ -6,20 +6,20 @@ import { Star } from 'lucide-react';
 const testimonials = [
   {
     name: 'Alex Mercer',
-    role: 'Verified Buyer',
-    content: 'Bought three keys in one night. All delivered instantly to my dashboard. The wallet system makes checkout painless.',
+    role: 'ผู้ซื้อที่ได้รับการยืนยัน',
+    content: 'ซื้อสามคีย์ในคืนเดียว ได้รับเข้าแดชบอร์ดทันที ระบบกระเป๋าเงินทำให้การชำระเงินง่ายดายไม่มีสะดุด',
     rating: 5,
   },
   {
     name: 'Sofia Nakamura',
-    role: 'Verified Buyer',
-    content: 'The UI is gorgeous and the download links actually work months later. Best digital game store I have used.',
+    role: 'ผู้ซื้อที่ได้รับการยืนยัน',
+    content: 'ส่วนติดต่อผู้ใช้นั้นสวยงามมาก และลิงก์ดาวน์โหลดก็ยังคงใช้งานได้จริงแม้จะผ่านไปหลายเดือนแล้ว ร้านค้าเกมดิจิทัลที่ดีที่สุดเท่าที่เคยใช้มา',
     rating: 5,
   },
   {
     name: 'Daniel Okafor',
-    role: 'Verified Buyer',
-    content: 'Support helped me with a refund in under an hour. The manual transfer top-up was approved quickly too.',
+    role: 'ผู้ซื้อที่ได้รับการยืนยัน',
+    content: 'ทีมช่วยเหลือช่วยจัดการเรื่องคืนเงินให้ภายในเวลาไม่ถึงหนึ่งชั่วโมง การเติมเงินผ่านการโอนเงินก็ได้รับการอนุมัติอย่างรวดเร็วเช่นกัน',
     rating: 5,
   },
 ];
@@ -29,10 +29,10 @@ export function HomeTestimonials() {
     <section className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
       <div className="mb-12 text-center">
         <h2 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">
-          Loved by gamers
+          เป็นที่ชื่นชอบของเหล่าเกมเมอร์
         </h2>
         <p className="mt-2 text-muted-foreground">
-          Real reviews from our community of verified buyers.
+          รีวิวจากใจจริงของชุมชนผู้ซื้อที่ได้รับการยืนยันตัวตน
         </p>
       </div>
 
