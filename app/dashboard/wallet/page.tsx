@@ -10,6 +10,9 @@ import { Label } from '@/components/ui/label';
 import { formatPrice } from '@/lib/helpers';
 import { toast } from 'sonner';
 
+// เปลี่ยนเป็นเบอร์พร้อมเพย์ หรือ เลขบัตรประชาชนของคุณ
+const PROMPTPAY_NUMBER = "0801234567"; 
+
 type Tx = {
   id: string;
   amount: number;
@@ -19,19 +22,10 @@ type Tx = {
   created_at: string;
 };
 
-type Topup = {
-  id: string;
-  amount: number;
-  status: string;
-  slip_url: string | null;
-  created_at: string;
-};
-
 export default function WalletPage() {
   const { user } = useAuth();
   const [balance, setBalance] = useState(0);
   const [txs, setTxs] = useState<Tx[]>([]);
-  const [topups, setTopups] = useState<Topup[]>([]);
   
   const [amount, setAmount] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<'qrcode' | 'truemoney'>('qrcode');
@@ -42,12 +36,16 @@ export default function WalletPage() {
 
   const load = useCallback(async () => {
     if (!user) return;
+    
+    // ดึงยอดเงินล่าสุด
     const { data: wallet } = await supabase
       .from('wallets')
       .select('balance')
       .eq('user_id', user.id)
       .maybeSingle();
     setBalance(wallet?.balance ?? 0);
+    
+    // ดึงประวัติธุรกรรม
     const { data: txData } = await supabase
       .from('transactions')
       .select('id, amount, type, status, reference, created_at')
@@ -55,18 +53,26 @@ export default function WalletPage() {
       .order('created_at', { ascending: false })
       .limit(10);
     setTxs(txData ?? []);
-    const { data: topupData } = await supabase
-      .from('topup_requests')
-      .select('id, amount, status, slip_url, created_at')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false })
-      .limit(5);
-    setTopups(topupData ?? []);
   }, [user]);
 
   useEffect(() => {
     load();
-  }, [load]);
+    
+    // อัปเดตข้อมูลอัตโนมัติเมื่อมีการเปลี่ยนแปลงในฐานข้อมูล
+    const channel = supabase
+      .channel('wallet_changes')
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'wallets', filter: `user_id=eq.${user?.id}` }, () => {
+        load();
+      })
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'transactions', filter: `user_id=eq.${user?.id}` }, () => {
+        load();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [load, user?.id]);
 
   const submitTopup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -88,46 +94,45 @@ export default function WalletPage() {
     }
 
     setSubmitting(true);
-    let finalSlipUrl = '';
 
-    if (paymentMethod === 'qrcode' && slipFile) {
-      const fileExt = slipFile.name.split('.').pop();
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('slips')
-        .upload(`public/${fileName}`, slipFile);
-
-      if (uploadError) {
-        finalSlipUrl = slipFile.name; 
-      } else {
-        const { data: publicUrlData } = supabase.storage.from('slips').getPublicUrl(`public/${fileName}`);
-        finalSlipUrl = publicUrlData.publicUrl;
+    try {
+      const formData = new FormData();
+      formData.append('method', paymentMethod);
+      formData.append('amount', amount);
+      
+      if (paymentMethod === 'qrcode' && slipFile) {
+        formData.append('slip', slipFile);
+      } else if (paymentMethod === 'truemoney') {
+        formData.append('link', giftLink);
       }
-    } else if (paymentMethod === 'truemoney') {
-      finalSlipUrl = giftLink;
+
+      // ส่งข้อมูลไปให้ API หลังบ้านตรวจสอบอัตโนมัติ
+      const res = await fetch('/api/wallet/topup', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const result = await res.json();
+
+      if (!res.ok) {
+        throw new Error(result.error || 'เกิดข้อผิดพลาดในการเติมเงิน');
+      }
+
+      toast.success(`เติมเงินสำเร็จ! ยอดเงินเข้ากระเป๋าจำนวน ฿${result.amount}`);
+      
+      // ล้างค่าในฟอร์ม
+      setAmount('');
+      setSlipFile(null);
+      setGiftLink('');
+      const fileInput = document.getElementById('slip') as HTMLInputElement;
+      if (fileInput) fileInput.value = '';
+      
+      load(); // รีเฟรชยอดเงิน
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setSubmitting(false);
     }
-
-    const { error } = await supabase.from('topup_requests').insert({
-      user_id: user!.id,
-      amount: amt,
-      slip_url: finalSlipUrl || null,
-      status: 'pending',
-    });
-
-    setSubmitting(false);
-
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-
-    toast.success('แจ้งเติมเงินเรียบร้อยแล้ว แอดมินจะตรวจสอบและเพิ่มยอดเงินในไม่ช้า');
-    setAmount('');
-    setSlipFile(null);
-    setGiftLink('');
-    const fileInput = document.getElementById('slip') as HTMLInputElement;
-    if (fileInput) fileInput.value = '';
-    load();
   };
 
   return (
@@ -153,7 +158,7 @@ export default function WalletPage() {
         <div className="rounded-2xl border border-border bg-card p-6">
           <h2 className="mb-4 flex items-center gap-2 font-display text-lg font-semibold">
             <Plus className="h-5 w-5 text-primary" />
-            เติมเงินเข้ากระเป๋า
+            เติมเงินอัตโนมัติ (เข้าทันที)
           </h2>
           <form onSubmit={submitTopup} className="space-y-6">
             <div className="space-y-2">
@@ -205,8 +210,13 @@ export default function WalletPage() {
               <div className="space-y-4 rounded-xl border border-border bg-background p-4">
                 {amount && parseFloat(amount) > 0 ? (
                   <div className="flex flex-col items-center justify-center rounded-lg bg-white p-6 text-center">
-                    <QrCode className="mb-3 h-32 w-32 text-black" />
-                    <p className="text-sm text-gray-500">สแกนคิวอาร์โค้ดด้วยแอปธนาคาร</p>
+                    {/* ใช้ API จาก promptpay.io เพื่อสร้าง QR Code ของจริง */}
+                    <img 
+                      src={`https://promptpay.io/${PROMPTPAY_NUMBER}/${amount}.png`} 
+                      alt="PromptPay QR Code" 
+                      className="mb-3 h-48 w-48 object-contain"
+                    />
+                    <p className="text-sm text-gray-500">สแกนเพื่อโอนเข้าบัญชีพร้อมเพย์</p>
                     <p className="mt-1 text-lg font-bold text-black">
                       ยอดชำระ: ฿{parseFloat(amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </p>
@@ -219,7 +229,7 @@ export default function WalletPage() {
                 )}
                 
                 <div className="space-y-2 pt-2">
-                  <Label htmlFor="slip">อัปโหลดสลิปที่สำเร็จแล้ว <span className="text-destructive">*</span></Label>
+                  <Label htmlFor="slip">อัปโหลดสลิปเพื่อยืนยัน <span className="text-destructive">*</span></Label>
                   <div className="flex items-center gap-2">
                     <Input
                       id="slip"
@@ -231,7 +241,7 @@ export default function WalletPage() {
                     />
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    กรุณาแนบสลิปที่ถูกต้องและยังไม่ถูกใช้งาน ระบบจะดึงยอดเงินเข้ากระเป๋าหลังจากการตรวจสอบ
+                    ระบบจะตรวจสอบสลิปอัตโนมัติ หากถูกต้องยอดเงินจะเข้าทันที (ห้ามใช้สลิปซ้ำ)
                   </p>
                 </div>
               </div>
@@ -248,49 +258,30 @@ export default function WalletPage() {
                   className="bg-card"
                 />
                 <p className="text-xs text-muted-foreground">
-                  สร้างซองของขวัญทรูมันนี่แบบ "แบ่งจำนวนเงินเท่ากัน" และใส่ลิงก์ที่นี่
+                  สร้างซองของขวัญทรูมันนี่แบบ "แบ่งจำนวนเงินเท่ากัน" ใส่ 1 คน และนำลิงก์มาวาง ระบบจะเช็คและเติมให้ทันที
                 </p>
               </div>
             )}
 
             <Button type="submit" disabled={submitting} className="w-full gradient-primary text-white hover:opacity-90">
-              {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
-              ยืนยันการเติมเงิน
+              {submitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  กำลังตรวจสอบความถูกต้อง...
+                </>
+              ) : (
+                <>
+                  <Check className="mr-2 h-4 w-4" />
+                  เติมเงินทันที
+                </>
+              )}
             </Button>
           </form>
-
-          {/* Pending top-ups */}
-          {topups.length > 0 && (
-            <div className="mt-8">
-              <h3 className="mb-3 text-sm font-medium text-muted-foreground">ประวัติการเติมเงินล่าสุด</h3>
-              <ul className="space-y-2">
-                {topups.map((t) => (
-                  <li key={t.id} className="flex items-center justify-between rounded-lg border border-border bg-background p-3">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
-                        <Clock className="h-4 w-4 text-primary" />
-                      </div>
-                      <div>
-                        <span className="text-sm font-medium">฿{t.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                        <p className="text-xs text-muted-foreground">{new Date(t.created_at).toLocaleDateString()}</p>
-                      </div>
-                    </div>
-                    <span className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${
-                      t.status === 'approved' ? 'bg-green-500/10 text-green-500' : t.status === 'rejected' ? 'bg-destructive/10 text-destructive' : 'bg-orange-500/10 text-orange-500'
-                    }`}>
-                      {t.status === 'approved' ? <Check className="h-3 w-3" /> : t.status === 'rejected' ? <X className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
-                      {t.status === 'approved' ? 'สำเร็จ' : t.status === 'rejected' ? 'ถูกปฏิเสธ' : 'รอตรวจสอบ'}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
         </div>
 
         {/* Transactions */}
         <div className="rounded-2xl border border-border bg-card p-6">
-          <h2 className="mb-4 font-display text-lg font-semibold">ประวัติการทำรายการ</h2>
+          <h2 className="mb-4 font-display text-lg font-semibold">ประวัติการทำรายการล่าสุด</h2>
           {txs.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <Wallet className="mb-3 h-12 w-12 text-muted-foreground opacity-20" />
@@ -307,8 +298,8 @@ export default function WalletPage() {
                     <div>
                       <p className="text-sm font-medium capitalize">{tx.type}</p>
                       <p className="text-xs text-muted-foreground">
-                        {new Date(tx.created_at).toLocaleDateString('th-TH')}
-                        {tx.reference && ` • ${tx.reference}`}
+                        {new Date(tx.created_at).toLocaleString('th-TH', { dateStyle: 'short', timeStyle: 'short' })}
+                        {tx.reference && ` • อ้างอิง: ${tx.reference.substring(0, 8)}...`}
                       </p>
                     </div>
                   </div>
