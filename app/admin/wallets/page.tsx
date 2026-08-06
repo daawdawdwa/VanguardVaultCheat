@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Loader2, Check, X } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { formatPrice } from '@/lib/helpers';
 import { toast } from 'sonner';
 
@@ -60,14 +61,23 @@ export default function AdminWalletsPage() {
         updated_at: new Date().toISOString(),
       }).eq('id', wallet.id);
     }
-    toast.success('Top-up approved and wallet updated');
+    toast.success('อนุมัติการเติมเงินและอัปเดตยอดเงินในกระเป๋าเรียบร้อยแล้ว');
     load();
   };
 
   const rejectTopup = async (id: string) => {
     await supabase.from('topup_requests').update({ status: 'rejected' }).eq('id', id);
-    toast.success('Top-up rejected');
+    toast.success('ปฏิเสธรายการเติมเงินเรียบร้อยแล้ว');
     load();
+  };
+
+  const getStatusLabel = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'approved': return 'อนุมัติแล้ว';
+      case 'rejected': return 'ปฏิเสธ';
+      case 'pending': return 'รอดำเนินการ';
+      default: return status;
+    }
   };
 
   if (loading) {
@@ -76,30 +86,38 @@ export default function AdminWalletsPage() {
 
   return (
     <div>
-      <h2 className="mb-6 font-display text-xl font-semibold">Wallets</h2>
+      <h2 className="mb-6 font-display text-xl font-semibold">จัดการกระเป๋าเงิน (Wallets)</h2>
 
-      <div className="mb-8 rounded-2xl border border-border overflow-hidden">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b border-border bg-card">
-              <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">User</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Balance</th>
-            </tr>
-          </thead>
-          <tbody>
-            {wallets.map((w) => (
-              <tr key={w.id} className="border-b border-border last:border-0">
-                <td className="px-4 py-3 text-sm font-medium">{w.profile?.username ?? w.user_id.slice(0, 8)}</td>
-                <td className="px-4 py-3 text-sm font-semibold">{formatPrice(w.balance)}</td>
+      {wallets.length === 0 ? (
+        <div className="mb-8 rounded-xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">
+          ยังไม่มีข้อมูลกระเป๋าเงินในระบบ
+        </div>
+      ) : (
+        <div className="mb-8 overflow-hidden rounded-2xl border border-border">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-border bg-card">
+                <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">ผู้ใช้งาน</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">ยอดเงินคงเหลือ</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {wallets.map((w) => (
+                <tr key={w.id} className="border-b border-border last:border-0">
+                  <td className="px-4 py-3 text-sm font-medium">{w.profile?.username ?? w.user_id.slice(0, 8)}</td>
+                  <td className="px-4 py-3 text-sm font-semibold">{formatPrice(w.balance)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
-      <h2 className="mb-4 font-display text-xl font-semibold">Top-Up Requests</h2>
+      <h2 className="mb-4 font-display text-xl font-semibold">รายการขอเติมเงิน</h2>
       {topups.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No top-up requests.</p>
+        <div className="rounded-xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">
+          ยังไม่มีรายการขอเติมเงินในขณะนี้
+        </div>
       ) : (
         <div className="space-y-2">
           {topups.map((req) => (
@@ -107,8 +125,8 @@ export default function AdminWalletsPage() {
               <div className="flex-1">
                 <p className="text-sm font-medium">{req.profile?.username ?? req.user_id.slice(0, 8)}</p>
                 <p className="text-xs text-muted-foreground">
-                  {formatPrice(req.amount)} • {new Date(req.created_at).toLocaleDateString()}
-                  {req.slip_url && <a href={req.slip_url} target="_blank" rel="noreferrer" className="ml-2 text-primary hover:underline">View slip</a>}
+                  {formatPrice(req.amount)} • {new Date(req.created_at).toLocaleDateString('th-TH')}
+                  {req.slip_url && <a href={req.slip_url} target="_blank" rel="noreferrer" className="ml-2 text-primary hover:underline">ดูสลิปโอนเงิน</a>}
                 </p>
               </div>
               {req.status === 'pending' ? (
@@ -121,7 +139,9 @@ export default function AdminWalletsPage() {
                   </Button>
                 </div>
               ) : (
-                <span className={`text-xs capitalize ${req.status === 'approved' ? 'text-green-500' : 'text-destructive'}`}>{req.status}</span>
+                <Badge variant={req.status === 'approved' ? 'default' : 'secondary'} className={`capitalize ${req.status === 'approved' ? 'bg-green-500/10 text-green-500' : 'bg-destructive/10 text-destructive'}`}>
+                  {getStatusLabel(req.status)}
+                </Badge>
               )}
             </div>
           ))}
