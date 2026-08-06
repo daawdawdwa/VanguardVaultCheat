@@ -89,37 +89,41 @@ export default function AdminProductsPage() {
     if (editing) {
       const { error } = await supabase.from('products').update(payload).eq('id', editing.id);
       if (error) { toast.error(error.message); return; }
-      toast.success('Product updated');
+      toast.success('อัปเดตสินค้าสำเร็จ');
     } else {
       const { error } = await supabase.from('products').insert(payload);
       if (error) { toast.error(error.message); return; }
-      toast.success('Product created');
+      toast.success('สร้างสินค้าสำเร็จ');
     }
     setShowForm(false);
     load();
   };
 
   const remove = async (id: string) => {
-    if (!confirm('Delete this product?')) return;
+    if (!confirm('คุณต้องการลบสินค้านี้ใช่หรือไม่?')) return;
     const { error } = await supabase.from('products').delete().eq('id', id);
     if (error) { toast.error(error.message); return; }
-    toast.success('Product deleted');
+    toast.success('ลบสินค้าสำเร็จ');
     load();
   };
 
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
-        <h2 className="font-display text-xl font-semibold">Products ({products.length})</h2>
+        <h2 className="font-display text-xl font-semibold">จัดการสินค้า ({products.length})</h2>
         <Button onClick={openCreate} className="gradient-primary text-white hover:opacity-90">
           <Plus className="mr-2 h-4 w-4" />
-          Add Product
+          เพิ่มสินค้า
         </Button>
       </div>
 
       {loading ? (
         <div className="flex h-32 items-center justify-center">
           <Loader2 className="h-6 w-6 animate-spin text-primary" />
+        </div>
+      ) : products.length === 0 ? (
+        <div className="rounded-xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">
+          ยังไม่มีสินค้าในระบบ
         </div>
       ) : (
         <div className="space-y-2">
@@ -134,12 +138,12 @@ export default function AdminProductsPage() {
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium">{p.title}</p>
                 <p className="text-xs text-muted-foreground">
-                  {p.category?.name ?? 'Uncategorized'} • v{p.game_version} • Stock: {p.stock}
+                  {p.category?.name ?? 'ไม่มีหมวดหมู่'} • v{p.game_version} • คลัง: {p.stock}
                 </p>
               </div>
               <div className="flex items-center gap-2">
-                {p.featured && <Badge className="gradient-primary text-white">Featured</Badge>}
-                {p.popular && <Badge variant="secondary">Popular</Badge>}
+                {p.featured && <Badge className="gradient-primary text-white">แนะนำ</Badge>}
+                {p.popular && <Badge variant="secondary">ยอดนิยม</Badge>}
                 <span className="text-sm font-semibold">{formatPrice(p.price)}</span>
                 <button onClick={() => openEdit(p)} className="flex h-8 w-8 items-center justify-center rounded-lg border border-border text-muted-foreground hover:text-foreground">
                   <Pencil className="h-4 w-4" />
@@ -159,7 +163,7 @@ export default function AdminProductsPage() {
           <div className="glass-strong max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-border p-6">
             <div className="mb-4 flex items-center justify-between">
               <h3 className="font-display text-lg font-semibold">
-                {editing ? 'Edit Product' : 'New Product'}
+                {editing ? 'แก้ไขสินค้า' : 'สร้างสินค้าใหม่'}
               </h3>
               <button onClick={() => setShowForm(false)} className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground">
                 <X className="h-5 w-5" />
@@ -167,46 +171,46 @@ export default function AdminProductsPage() {
             </div>
             <form onSubmit={save} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="title">Title</Label>
+                <Label htmlFor="title">ชื่อสินค้า</Label>
                 <Input id="title" required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="bg-card" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="desc">Description</Label>
+                <Label htmlFor="desc">รายละเอียด</Label>
                 <Textarea id="desc" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="bg-card" rows={3} />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="price">Price</Label>
+                  <Label htmlFor="price">ราคา (฿)</Label>
                   <Input id="price" type="number" step="0.01" required value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} className="bg-card" />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="discount">Discount %</Label>
+                  <Label htmlFor="discount">ส่วนลด (%)</Label>
                   <Input id="discount" type="number" min="0" max="100" value={form.discount} onChange={(e) => setForm({ ...form, discount: e.target.value })} className="bg-card" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="stock">Stock</Label>
+                  <Label htmlFor="stock">จำนวนคลังสินค้า</Label>
                   <Input id="stock" type="number" value={form.stock} onChange={(e) => setForm({ ...form, stock: e.target.value })} className="bg-card" />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="version">Game Version</Label>
+                  <Label htmlFor="version">เวอร์ชันเกม</Label>
                   <Input id="version" value={form.game_version} onChange={(e) => setForm({ ...form, game_version: e.target.value })} className="bg-card" />
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="thumb">Thumbnail URL</Label>
+                <Label htmlFor="thumb">URL รูปภาพหน้าปก</Label>
                 <Input id="thumb" value={form.thumbnail_url} onChange={(e) => setForm({ ...form, thumbnail_url: e.target.value })} placeholder="https://..." className="bg-card" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="cat">Category</Label>
+                <Label htmlFor="cat">หมวดหมู่</Label>
                 <select
                   id="cat"
                   value={form.category_id}
                   onChange={(e) => setForm({ ...form, category_id: e.target.value })}
                   className="flex h-10 w-full rounded-lg border border-border bg-card px-3 text-sm"
                 >
-                  <option value="">None</option>
+                  <option value="">ไม่มีหมวดหมู่</option>
                   {categories.map((c) => (
                     <option key={c.id} value={c.id}>{c.name}</option>
                   ))}
@@ -215,15 +219,15 @@ export default function AdminProductsPage() {
               <div className="flex gap-4">
                 <label className="flex items-center gap-2 text-sm">
                   <input type="checkbox" checked={form.featured} onChange={(e) => setForm({ ...form, featured: e.target.checked })} className="accent-primary" />
-                  Featured
+                  สินค้าแนะนำ (Featured)
                 </label>
                 <label className="flex items-center gap-2 text-sm">
                   <input type="checkbox" checked={form.popular} onChange={(e) => setForm({ ...form, popular: e.target.checked })} className="accent-primary" />
-                  Popular
+                  สินค้ายอดนิยม (Popular)
                 </label>
               </div>
               <Button type="submit" className="w-full gradient-primary text-white hover:opacity-90">
-                {editing ? 'Save Changes' : 'Create Product'}
+                {editing ? 'บันทึกการเปลี่ยนแปลง' : 'สร้างสินค้า'}
               </Button>
             </form>
           </div>
