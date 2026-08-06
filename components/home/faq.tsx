@@ -10,24 +10,24 @@ import { motion } from 'framer-motion';
 
 const faqs = [
   {
-    q: 'How fast do I get my license key?',
-    a: 'Instantly. The moment your payment is confirmed, your license key and download links appear in your dashboard under Orders and Downloads. No waiting, no email delays.',
+    q: 'ฉันจะได้รับคีย์ลิขสิทธิ์เร็วแค่ไหน?',
+    a: 'ได้รับทันที ทันทีที่การชำระเงินของคุณได้รับการยืนยัน คีย์ลิขสิทธิ์และลิงก์ดาวน์โหลดจะปรากฏในแดชบอร์ดของคุณภายใต้หัวข้อคำสั่งซื้อและการดาวน์โหลด ไม่ต้องรอ ไม่มีความล่าช้าทางอีเมล',
   },
   {
-    q: 'What payment methods are supported?',
-    a: 'You can top up your wallet via manual bank transfer with slip upload for admin approval, or Thai QR payment. Once your wallet has a balance, checkout is a single click.',
+    q: 'รองรับวิธีการชำระเงินแบบใดบ้าง?',
+    a: 'คุณสามารถเติมเงินเข้ากระเป๋าเงินผ่านการโอนเงินผ่านธนาคารพร้อมอัปโหลดสลิปเพื่อให้ผู้ดูแลระบบอนุมัติ หรือการชำระเงินผ่าน Thai QR เมื่อกระเป๋าเงินของคุณมีเงินคงเหลือ การชำระเงินจะทำได้ด้วยการคลิกเพียงครั้งเดียว',
   },
   {
-    q: 'Can I re-download my files later?',
-    a: 'Yes. Every purchase is permanently tied to your account. You can re-download files from your dashboard at any time, with full download history tracking.',
+    q: 'ฉันสามารถดาวน์โหลดไฟล์ซ้ำในภายหลังได้หรือไม่?',
+    a: 'ได้ ทุกการซื้อจะผูกติดกับบัญชีของคุณอย่างถาวร คุณสามารถดาวน์โหลดไฟล์ซ้ำจากแดชบอร์ดของคุณได้ตลอดเวลา พร้อมทั้งมีระบบติดตามประวัติการดาวน์โหลดอย่างครบถ้วน',
   },
   {
-    q: 'What if a key does not work?',
-    a: 'Open a support ticket from your dashboard and our team will investigate. Eligible issues are resolved with a replacement key or a full refund to your wallet.',
+    q: 'จะเกิดอะไรขึ้นหากคีย์ใช้งานไม่ได้?',
+    a: 'เปิดตั๋วแจ้งปัญหาจากแดชบอร์ดของคุณแล้วทีมงานของเราจะตรวจสอบ ปัญหาที่เข้าเงื่อนไขจะได้รับการแก้ไขด้วยการเปลี่ยนคีย์ใหม่หรือคืนเงินเต็มจำนวนเข้ากระเป๋าเงินของคุณ',
   },
   {
-    q: 'Do you offer refunds?',
-    a: 'Refunds are available for eligible orders. Submit a refund request and an admin will review it. Approved refunds are credited back to your wallet balance.',
+    q: 'มีนโยบายการคืนเงินหรือไม่?',
+    a: 'มีการคืนเงินสำหรับคำสั่งซื้อที่เข้าเงื่อนไข ส่งคำขอคืนเงินแล้วผู้ดูแลระบบจะทำการตรวจสอบ การคืนเงินที่ได้รับการอนุมัติจะถูกเครดิตกลับเข้าสู่ยอดคงเหลือในกระเป๋าเงินของคุณ',
   },
 ];
 
@@ -36,10 +36,10 @@ export function HomeFaq() {
     <section className="relative mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8">
       <div className="mb-12 text-center">
         <h2 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">
-          Frequently asked questions
+          คำถามที่พบบ่อย
         </h2>
         <p className="mt-2 text-muted-foreground">
-          Everything you need to know before your first purchase.
+          ทุกสิ่งที่คุณจำเป็นต้องรู้ก่อนการสั่งซื้อครั้งแรกของคุณ
         </p>
       </div>
 
