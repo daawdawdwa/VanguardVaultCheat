@@ -32,7 +32,7 @@ export function CartDrawer() {
               <div className="flex items-center gap-2">
                 <ShoppingBag className="h-5 w-5 text-primary" />
                 <h2 className="font-display text-lg font-semibold">
-                  Cart {count > 0 && <span className="text-muted-foreground">({count})</span>}
+                  ตะกร้าสินค้า {count > 0 && <span className="text-muted-foreground">({count})</span>}
                 </h2>
               </div>
               <button
@@ -49,11 +49,11 @@ export function CartDrawer() {
                   <ShoppingBag className="h-8 w-8 text-muted-foreground" />
                 </div>
                 <p className="text-center text-sm text-muted-foreground">
-                  Your cart is empty. Start exploring our catalog.
+                  ตะกร้าสินค้าของคุณว่างเปล่า เริ่มสำรวจแคตตาล็อกสินค้ากันเลย
                 </p>
                 <Link href="/products" onClick={close}>
                   <Button className="gradient-primary text-white hover:opacity-90">
-                    Browse Products
+                    เลือกดูสินค้า
                   </Button>
                 </Link>
               </div>
@@ -125,12 +125,12 @@ export function CartDrawer() {
 
                 <div className="border-t border-border px-6 py-4">
                   <div className="mb-4 flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Subtotal</span>
+                    <span className="text-sm text-muted-foreground">ยอดรวมย่อย</span>
                     <span className="text-lg font-bold">{formatPrice(subtotal)}</span>
                   </div>
                   <Link href="/checkout" onClick={close}>
                     <Button className="w-full gradient-primary text-white hover:opacity-90">
-                      Checkout
+                      ดำเนินการชำระเงิน
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </Link>
