@@ -68,7 +68,7 @@ export default function WalletPage() {
     e.preventDefault();
     const amt = parseFloat(amount);
     if (!amt || amt <= 0) {
-      toast.error('Enter a valid amount');
+      toast.error('กรุณาระบุจำนวนเงินที่ถูกต้อง');
       return;
     }
     setSubmitting(true);
@@ -83,7 +83,7 @@ export default function WalletPage() {
       toast.error(error.message);
       return;
     }
-    toast.success('Top-up request submitted. An admin will review it shortly.');
+    toast.success('ส่งคำขอเติมเงินเรียบร้อยแล้ว แอดมินจะตรวจสอบในไม่ช้า');
     setAmount('');
     setSlipUrl('');
     load();
@@ -91,14 +91,14 @@ export default function WalletPage() {
 
   return (
     <div>
-      <h1 className="mb-8 font-display text-2xl font-bold tracking-tight">Wallet</h1>
+      <h1 className="mb-8 font-display text-2xl font-bold tracking-tight">กระเป๋าเงิน</h1>
 
       {/* Balance card */}
       <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-6">
         <div className="absolute right-0 top-0 h-32 w-32 rounded-full bg-primary/10 blur-3xl" />
         <div className="relative flex items-center justify-between">
           <div>
-            <p className="text-sm text-muted-foreground">Available Balance</p>
+            <p className="text-sm text-muted-foreground">ยอดเงินคงเหลือ</p>
             <p className="mt-1 font-display text-4xl font-bold">{formatPrice(balance)}</p>
           </div>
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl gradient-primary">
@@ -112,11 +112,11 @@ export default function WalletPage() {
         <div className="rounded-2xl border border-border bg-card p-6">
           <h2 className="mb-4 flex items-center gap-2 font-display text-lg font-semibold">
             <Plus className="h-5 w-5 text-primary" />
-            Top Up Wallet
+            เติมเงินเข้ากระเป๋า
           </h2>
           <form onSubmit={submitTopup} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="amount">Amount (USD)</Label>
+              <Label htmlFor="amount">จำนวนเงิน (USD)</Label>
               <Input
                 id="amount"
                 type="number"
@@ -130,7 +130,7 @@ export default function WalletPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="slip">Payment Slip URL (optional)</Label>
+              <Label htmlFor="slip">ลิงก์สลิปโอนเงิน (ไม่บังคับ)</Label>
               <Input
                 id="slip"
                 value={slipUrl}
@@ -139,18 +139,18 @@ export default function WalletPage() {
                 className="bg-card"
               />
               <p className="text-xs text-muted-foreground">
-                Upload your transfer receipt and paste the link here for manual approval.
+                อัปโหลดสลิปโอนเงินของคุณและวางลิงก์ที่นี่เพื่อให้แอดมินตรวจสอบ
               </p>
             </div>
             <Button type="submit" disabled={submitting} className="w-full gradient-primary text-white hover:opacity-90">
-              {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Submit Top-Up Request'}
+              {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'ส่งคำขอเติมเงิน'}
             </Button>
           </form>
 
           {/* Pending top-ups */}
           {topups.length > 0 && (
             <div className="mt-6">
-              <h3 className="mb-2 text-sm font-medium text-muted-foreground">Recent Requests</h3>
+              <h3 className="mb-2 text-sm font-medium text-muted-foreground">คำขอเติมเงินล่าสุด</h3>
               <ul className="space-y-2">
                 {topups.map((t) => (
                   <li key={t.id} className="flex items-center justify-between rounded-lg border border-border bg-background p-3">
@@ -173,9 +173,9 @@ export default function WalletPage() {
 
         {/* Transactions */}
         <div className="rounded-2xl border border-border bg-card p-6">
-          <h2 className="mb-4 font-display text-lg font-semibold">Transaction History</h2>
+          <h2 className="mb-4 font-display text-lg font-semibold">ประวัติการทำรายการ</h2>
           {txs.length === 0 ? (
-            <p className="py-8 text-center text-sm text-muted-foreground">No transactions yet.</p>
+            <p className="py-8 text-center text-sm text-muted-foreground">ยังไม่มีประวัติการทำรายการ</p>
           ) : (
             <ul className="space-y-2">
               {txs.map((tx) => (
