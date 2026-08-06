@@ -9,9 +9,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 
-// ใส่เบอร์พร้อมเพย์ของคุณที่ผูกกับบัญชีธนาคาร (เพื่อให้ promptpay.io สร้าง QR Code ตามยอดเงินได้ถูกต้อง)
-const PROMPTPAY_NUMBER = "0963174205";
-
 type Tx = {
   id: string;
   amount: number;
@@ -129,9 +126,6 @@ export default function WalletPage() {
     }
   };
 
-  const numericAmount = parseFloat(amount) || 0;
-  const qrCodeUrl = `https://promptpay.io/${PROMPTPAY_NUMBER}/${numericAmount}.png`;
-
   return (
     <div>
       <h1 className="mb-8 font-display text-2xl font-bold tracking-tight">กระเป๋าเงิน</h1>
@@ -204,23 +198,13 @@ export default function WalletPage() {
             {paymentMethod === 'qrcode' ? (
               <div className="space-y-4 rounded-xl border border-border bg-background p-4">
                 <div className="flex flex-col items-center justify-center rounded-lg bg-white p-6 text-center">
-                  {numericAmount > 0 ? (
-                    <img 
-                      src={qrCodeUrl} 
-                      alt="PromptPay QR Code" 
-                      className="mb-3 h-48 w-48 object-contain bg-white p-2 rounded shadow"
-                    />
-                  ) : (
-                    <div className="mb-3 h-48 w-48 flex items-center justify-center bg-gray-100 text-gray-400 text-sm rounded border border-dashed">
-                      กรุณากรอกจำนวนเงิน
-                    </div>
-                  )}
+                  <img 
+                    src="/bank-qr.png" 
+                    alt="Bank QR Code" 
+                    className="mb-3 h-48 w-48 object-contain bg-white p-2 rounded shadow"
+                  />
                   <p className="text-sm text-gray-500">สแกน QR Code เพื่อโอนเข้าบัญชี (ชื่อบัญชี: สุริยันต์ ปันสาร)</p>
-                  {numericAmount > 0 && (
-                    <p className="mt-1 text-lg font-bold text-black">
-                      ยอดที่ต้องโอน: ฿{numericAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </p>
-                  )}
+                  <p className="mt-1 text-sm font-bold text-destructive">กรุณาโอนให้ตรงกับจำนวนเงินที่ระบุ</p>
                 </div>
                 
                 <div className="space-y-2 pt-2">
