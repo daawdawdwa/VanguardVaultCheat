@@ -26,7 +26,7 @@ export default function ForgotPasswordPage() {
       return;
     }
     setSent(true);
-    toast.success('Password reset link sent');
+    toast.success('ส่งลิงก์รีเซ็ตรหัสผ่านแล้ว');
   };
 
   if (sent) {
@@ -35,14 +35,14 @@ export default function ForgotPasswordPage() {
         <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary">
           <Mail className="h-7 w-7" />
         </div>
-        <h1 className="font-display text-2xl font-bold">Check your email</h1>
+        <h1 className="font-display text-2xl font-bold">ตรวจสอบอีเมลของคุณ</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          We sent a password reset link to <span className="text-foreground">{email}</span>.
+          เราได้ส่งลิงก์รีเซ็ตรหัสผ่านไปที่ <span className="text-foreground">{email}</span> แล้ว
         </p>
         <Link href="/login" className="mt-6 inline-block">
           <Button variant="outline">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to sign in
+            กลับไปหน้าเข้าสู่ระบบ
           </Button>
         </Link>
       </div>
@@ -51,14 +51,14 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="glass-strong rounded-2xl border border-border p-8">
-      <h1 className="font-display text-2xl font-bold">Reset password</h1>
+      <h1 className="font-display text-2xl font-bold">รีเซ็ตรหัสผ่าน</h1>
       <p className="mt-1 text-sm text-muted-foreground">
-        Enter your email and we&apos;ll send you a reset link.
+        กรอกอีเมลของคุณแล้วเราจะส่งลิงก์รีเซ็ตรหัสผ่านให้
       </p>
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">อีเมล</Label>
           <div className="relative">
             <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -73,14 +73,14 @@ export default function ForgotPasswordPage() {
           </div>
         </div>
         <Button type="submit" disabled={loading} className="w-full gradient-primary text-white hover:opacity-90">
-          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Send reset link'}
+          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'ส่งลิงก์รีเซ็ตรหัสผ่าน'}
         </Button>
       </form>
 
       <p className="mt-6 text-center text-sm text-muted-foreground">
-        Remembered your password?{' '}
+        จำรหัสผ่านได้แล้วใช่หรือไม่?{' '}
         <Link href="/login" className="text-primary hover:underline">
-          Sign in
+          เข้าสู่ระบบ
         </Link>
       </p>
     </div>
