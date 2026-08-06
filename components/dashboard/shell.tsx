@@ -5,26 +5,26 @@ import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import {
   LayoutDashboard, Wallet, ShoppingBag, Download, Key, User, Settings,
-  LifeBuoy, Loader2, Users, Gift, Crown, Bell, Heart, Star,
+  LifeBuoy, Loader2, Users, Gift, Crown, Bell, Heart,
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 import { cn } from '@/lib/utils';
 import type { ReactNode } from 'react';
 
 const sidebarLinks = [
-  { href: '/dashboard', label: 'Overview', icon: LayoutDashboard },
-  { href: '/dashboard/wallet', label: 'Wallet', icon: Wallet },
-  { href: '/dashboard/orders', label: 'Orders', icon: ShoppingBag },
-  { href: '/dashboard/downloads', label: 'Downloads', icon: Download },
-  { href: '/dashboard/keys', label: 'License Keys', icon: Key },
-  { href: '/dashboard/affiliate', label: 'Affiliate', icon: Users },
-  { href: '/dashboard/redeem', label: 'Redeem', icon: Gift },
+  { href: '/dashboard', label: 'ภาพรวม', icon: LayoutDashboard },
+  { href: '/dashboard/wallet', label: 'กระเป๋าเงิน', icon: Wallet },
+  { href: '/dashboard/orders', label: 'คำสั่งซื้อ', icon: ShoppingBag },
+  { href: '/dashboard/downloads', label: 'ดาวน์โหลด', icon: Download },
+  { href: '/dashboard/keys', label: 'คีย์ลิขสิทธิ์', icon: Key },
+  { href: '/dashboard/affiliate', label: 'ระบบแนะนำเพื่อน', icon: Users },
+  { href: '/dashboard/redeem', label: 'โค้ดแลกรับ', icon: Gift },
   { href: '/dashboard/vip', label: 'VIP', icon: Crown },
-  { href: '/dashboard/wishlist', label: 'Wishlist', icon: Heart },
-  { href: '/dashboard/notifications', label: 'Notifications', icon: Bell },
-  { href: '/dashboard/profile', label: 'Profile', icon: User },
-  { href: '/dashboard/settings', label: 'Settings', icon: Settings },
-  { href: '/dashboard/support', label: 'Support', icon: LifeBuoy },
+  { href: '/dashboard/wishlist', label: 'รายการที่อยากได้', icon: Heart },
+  { href: '/dashboard/notifications', label: 'การแจ้งเตือน', icon: Bell },
+  { href: '/dashboard/profile', label: 'โปรไฟล์', icon: User },
+  { href: '/dashboard/settings', label: 'ตั้งค่า', icon: Settings },
+  { href: '/dashboard/support', label: 'ช่วยเหลือ', icon: LifeBuoy },
 ];
 
 export function DashboardShell({ children }: { children: ReactNode }) {
