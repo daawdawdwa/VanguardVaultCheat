@@ -1,14 +1,14 @@
 import type { Metadata } from 'next';
-import { Key, Check, X } from 'lucide-react';
+import { Key, Check } from 'lucide-react';
 
-export const metadata: Metadata = { title: 'API Documentation' };
+export const metadata: Metadata = { title: 'เอกสารคู่มือ API' };
 
 const endpoints = [
-  { method: 'POST', path: '/api/license/verify', desc: 'Verify a license key validity and get activation count', auth: 'None' },
-  { method: 'POST', path: '/api/license/activate', desc: 'Activate a license key on a device (machine binding)', auth: 'None' },
-  { method: 'POST', path: '/api/license/deactivate', desc: 'Deactivate a license key on a specific device', auth: 'None' },
-  { method: 'POST', path: '/api/license/reset', desc: 'Reset all activations for a key (admin only)', auth: 'Admin Token' },
-  { method: 'POST', path: '/api/license/info', desc: 'Get full license info including all activations', auth: 'None' },
+  { method: 'POST', path: '/api/license/verify', desc: 'ตรวจสอบความถูกต้องของคีย์ลิขสิทธิ์และดูจำนวนการเปิดใช้งาน', auth: 'ไม่ต้องยืนยันตัวตน' },
+  { method: 'POST', path: '/api/license/activate', desc: 'เปิดใช้งานคีย์ลิขสิทธิ์บนอุปกรณ์ (ผูกรหัสเครื่อง)', auth: 'ไม่ต้องยืนยันตัวตน' },
+  { method: 'POST', path: '/api/license/deactivate', desc: 'ปิดการใช้งานคีย์ลิขสิทธิ์บนอุปกรณ์เฉพาะเจาะจง', auth: 'ไม่ต้องยืนยันตัวตน' },
+  { method: 'POST', path: '/api/license/reset', desc: 'รีเซ็ตการเปิดใช้งานทั้งหมดของคีย์ (สำหรับผู้ดูแลระบบเท่านั้น)', auth: 'โทเค็นผู้ดูแลระบบ' },
+  { method: 'POST', path: '/api/license/info', desc: 'ดึงข้อมูลคีย์ลิขสิทธิ์ทั้งหมดรวมถึงประวัติการใช้งาน', auth: 'ไม่ต้องยืนยันตัวตน' },
 ];
 
 export default function ApiDocsPage() {
@@ -19,7 +19,7 @@ export default function ApiDocsPage() {
           <Key className="h-7 w-7 text-white" />
         </div>
         <h1 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">License Key API</h1>
-        <p className="mt-2 text-muted-foreground">REST API for license key validation, activation, and management.</p>
+        <p className="mt-2 text-muted-foreground">REST API สำหรับการตรวจสอบ เปิดใช้งาน และจัดการคีย์ลิขสิทธิ์</p>
       </div>
 
       <div className="space-y-4">
@@ -30,13 +30,13 @@ export default function ApiDocsPage() {
               <code className="text-sm font-mono">{ep.path}</code>
             </div>
             <p className="mt-2 text-sm text-muted-foreground">{ep.desc}</p>
-            <div className="mt-2 text-xs text-muted-foreground">Auth: {ep.auth}</div>
+            <div className="mt-2 text-xs text-muted-foreground">การยืนยันตัวตน: {ep.auth}</div>
           </div>
         ))}
       </div>
 
       <div className="mt-8 rounded-2xl border border-border bg-card p-6">
-        <h2 className="mb-4 font-display text-lg font-semibold">Example: Verify Key</h2>
+        <h2 className="mb-4 font-display text-lg font-semibold">ตัวอย่าง: ตรวจสอบคีย์</h2>
         <pre className="overflow-x-auto rounded-lg bg-background p-4 text-xs text-muted-foreground">
 {`POST /api/license/verify
 Content-Type: application/json
@@ -60,7 +60,7 @@ Response:
       </div>
 
       <div className="mt-6 rounded-2xl border border-border bg-card p-6">
-        <h2 className="mb-4 font-display text-lg font-semibold">Example: Activate Key</h2>
+        <h2 className="mb-4 font-display text-lg font-semibold">ตัวอย่าง: เปิดใช้งานคีย์</h2>
         <pre className="overflow-x-auto rounded-lg bg-background p-4 text-xs text-muted-foreground">
 {`POST /api/license/activate
 Content-Type: application/json
@@ -83,9 +83,18 @@ Response:
       </div>
 
       <div className="mt-6 rounded-2xl border border-border bg-card p-6">
-        <h2 className="mb-4 font-display text-lg font-semibold">Features</h2>
+        <h2 className="mb-4 font-display text-lg font-semibold">คุณสมบัติเด่น</h2>
         <ul className="space-y-2 text-sm">
-          {['Machine binding via hardware ID', 'Maximum 3 devices per key', 'IP logging on activation', 'Activation count tracking', 'Deactivation support', 'Admin reset capability', 'CORS enabled', 'Rate limiting ready'].map((f) => (
+          {[
+            'ผูกอุปกรณ์ผ่านรหัสฮาร์ดแวร์ (Hardware ID)',
+            'จำกัดสูงสุด 3 อุปกรณ์ต่อคีย์',
+            'บันทึก IP เมื่อมีการเปิดใช้งาน',
+            'ติดตามจำนวนครั้งที่เปิดใช้งาน',
+            'รองรับการปิดใช้งานอุปกรณ์',
+            'ความสามารถในการรีเซ็ตโดยผู้ดูแลระบบ',
+            'เปิดใช้งาน CORS',
+            'รองรับระบบ Rate Limiting'
+          ].map((f) => (
             <li key={f} className="flex items-center gap-2 text-muted-foreground">
               <Check className="h-4 w-4 text-green-500" />
               {f}
