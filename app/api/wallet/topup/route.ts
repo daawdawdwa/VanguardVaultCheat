@@ -3,9 +3,9 @@ import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 
 const MY_ACCOUNT_NAME = process.env.MY_ACCOUNT_NAME || "สุริยันต์ ปันสาร"; 
-const SLIPOK_API_KEY = process.env.SLIPOK_API_KEY || ""; 
-const SLIPOK_BRANCH_ID = process.env.SLIPOK_BRANCH_ID || ""; 
-const TRUEMONEY_MOBILE = process.env.TRUEMONEY_MOBILE || ""; 
+const SLIPOK_API_KEY = process.env.SLIPOK_API_KEY || "SLIPOKPPVSNU9"; 
+const SLIPOK_BRANCH_ID = process.env.SLIPOK_BRANCH_ID || "73152"; 
+const TRUEMONEY_MOBILE = process.env.TRUEMONEY_MOBILE || "0963174205"; 
 
 export async function POST(request: Request) {
   const supabase = createRouteHandlerClient({ cookies });
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
       slipData.append('files', slipFile);
 
       // ใช้ Branch ID ต่อท้าย URL และใส่ API Key ใน Header ตามที่ SlipOK กำหนด
-      const verifyRes = await fetch(`https://api.slipok.com/api/line/apikey/${SLIPOK_BRANCH_ID}`, {
+      const verifyRes = await fetch(`https://api.slipok.com/api/line/apikey/73152`, {
          method: 'POST', 
          body: slipData, 
          headers: { 
