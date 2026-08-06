@@ -39,14 +39,14 @@ export default function WishlistPage() {
 
   return (
     <div>
-      <h1 className="mb-8 font-display text-2xl font-bold tracking-tight">Wishlist</h1>
+      <h1 className="mb-8 font-display text-2xl font-bold tracking-tight">รายการโปรด</h1>
 
       {items.length === 0 ? (
         <div className="rounded-2xl border border-border bg-card p-12 text-center">
           <Heart className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
-          <p className="text-muted-foreground">Your wishlist is empty.</p>
+          <p className="text-muted-foreground">รายการโปรดของคุณว่างเปล่า</p>
           <Link href="/products" className="mt-4 inline-block">
-            <span className="text-primary hover:underline">Browse products</span>
+            <span className="text-primary hover:underline">เลือกชมสินค้า</span>
           </Link>
         </div>
       ) : (
