@@ -1,0 +1,72 @@
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
+import Link from 'next/link';
+import {
+  LayoutDashboard, Package, ShoppingBag, Key, Users, Ticket, Tag, Newspaper, Wallet,
+  Loader2, Users2, Gift, Crown, ImagePlus, Activity,
+} from 'lucide-react';
+import { useAuth } from '@/lib/auth-context';
+import { cn } from '@/lib/utils';
+import type { ReactNode } from 'react';
+
+const adminLinks = [
+  { href: '/admin', label: 'Overview', icon: LayoutDashboard },
+  { href: '/admin/products', label: 'Products', icon: Package },
+  { href: '/admin/orders', label: 'Orders', icon: ShoppingBag },
+  { href: '/admin/keys', label: 'License Keys', icon: Key },
+  { href: '/admin/users', label: 'Users', icon: Users },
+  { href: '/admin/wallets', label: 'Wallets', icon: Wallet },
+  { href: '/admin/affiliates', label: 'Affiliates', icon: Users2 },
+  { href: '/admin/redeem', label: 'Redeem Codes', icon: Gift },
+  { href: '/admin/vip', label: 'VIP', icon: Crown },
+  { href: '/admin/coupons', label: 'Coupons', icon: Tag },
+  { href: '/admin/tickets', label: 'Tickets', icon: Ticket },
+  { href: '/admin/announcements', label: 'Announcements', icon: Newspaper },
+  { href: '/admin/promotions', label: 'Promotions', icon: ImagePlus },
+  { href: '/admin/logs', label: 'Activity Logs', icon: Activity },
+];
+
+export function AdminShell({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
+  const { user, profile, loading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && !user) { router.push('/login'); return; }
+    if (!loading && profile && profile.role !== 'admin' && profile.role !== 'moderator') { router.push('/dashboard'); }
+  }, [user, profile, loading, router]);
+
+  if (loading || !user) {
+    return <div className="flex h-64 items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
+  }
+  if (profile && profile.role !== 'admin' && profile.role !== 'moderator') {
+    return <div className="flex h-64 items-center justify-center text-sm text-muted-foreground">You do not have access to this area.</div>;
+  }
+
+  return (
+    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <div className="mb-8">
+        <h1 className="font-display text-2xl font-bold tracking-tight">Admin Panel</h1>
+        <p className="mt-1 text-sm text-muted-foreground">Manage your store, products, and customers.</p>
+      </div>
+      <div className="flex flex-col gap-6 lg:flex-row">
+        <aside className="lg:w-56 lg:flex-shrink-0">
+          <nav className="flex gap-1 overflow-x-auto pb-2 lg:flex-col lg:pb-0 lg:sticky lg:top-20">
+            {adminLinks.map((link) => {
+              const active = pathname === link.href || (link.href !== '/admin' && pathname.startsWith(link.href));
+              return (
+                <Link key={link.href} href={link.href} className={cn('flex flex-shrink-0 items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors', active ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-card hover:text-foreground')}>
+                  <link.icon className="h-4 w-4 flex-shrink-0" />
+                  <span className="whitespace-nowrap">{link.label}</span>
+                </Link>
+              );
+            })}
+          </nav>
+        </aside>
+        <div className="min-w-0 flex-1">{children}</div>
+      </div>
+    </div>
+  );
+}

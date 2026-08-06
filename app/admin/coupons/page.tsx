@@ -1,0 +1,124 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { Plus, Trash2, Loader2, X } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { toast } from 'sonner';
+import type { Coupon } from '@/lib/types';
+
+export default function AdminCouponsPage() {
+  const [coupons, setCoupons] = useState<Coupon[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({ code: '', type: 'percent', value: '10', usage_limit: '100' });
+
+  const load = async () => {
+    setLoading(true);
+    const { data } = await supabase.from('coupons').select('*').order('created_at', { ascending: false });
+    setCoupons((data as Coupon[]) ?? []);
+    setLoading(false);
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const create = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const { error } = await supabase.from('coupons').insert({
+      code: form.code.toUpperCase(),
+      type: form.type as 'percent' | 'fixed',
+      value: parseFloat(form.value),
+      usage_limit: parseInt(form.usage_limit) || null,
+      active: true,
+    });
+    if (error) { toast.error(error.message); return; }
+    toast.success('Coupon created');
+    setShowForm(false);
+    setForm({ code: '', type: 'percent', value: '10', usage_limit: '100' });
+    load();
+  };
+
+  const toggle = async (c: Coupon) => {
+    await supabase.from('coupons').update({ active: !c.active }).eq('id', c.id);
+    load();
+  };
+
+  const remove = async (id: string) => {
+    if (!confirm('Delete this coupon?')) return;
+    await supabase.from('coupons').delete().eq('id', id);
+    toast.success('Coupon deleted');
+    load();
+  };
+
+  if (loading) {
+    return <div className="flex h-32 items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>;
+  }
+
+  return (
+    <div>
+      <div className="mb-6 flex items-center justify-between">
+        <h2 className="font-display text-xl font-semibold">Coupons ({coupons.length})</h2>
+        <Button onClick={() => setShowForm(true)} className="gradient-primary text-white hover:opacity-90">
+          <Plus className="mr-2 h-4 w-4" />
+          Add Coupon
+        </Button>
+      </div>
+
+      <div className="space-y-2">
+        {coupons.map((c) => (
+          <div key={c.id} className="flex items-center gap-4 rounded-xl border border-border bg-card p-3">
+            <code className="rounded-lg border border-border bg-background px-3 py-1.5 text-sm font-mono">{c.code}</code>
+            <div className="flex-1 text-sm text-muted-foreground">
+              {c.type === 'percent' ? `${c.value}% off` : `$${c.value} off`} • Used {c.used_count}/{c.usage_limit ?? '∞'}
+            </div>
+            <Badge variant={c.active ? 'default' : 'secondary'}>{c.active ? 'Active' : 'Inactive'}</Badge>
+            <button onClick={() => toggle(c)} className="text-xs text-primary hover:underline">
+              {c.active ? 'Deactivate' : 'Activate'}
+            </button>
+            <button onClick={() => remove(c.id)} className="flex h-8 w-8 items-center justify-center rounded-lg border border-border text-muted-foreground hover:text-destructive">
+              <Trash2 className="h-4 w-4" />
+            </button>
+          </div>
+        ))}
+      </div>
+
+      {showForm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+          <div className="glass-strong w-full max-w-md rounded-2xl border border-border p-6">
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="font-display text-lg font-semibold">New Coupon</h3>
+              <button onClick={() => setShowForm(false)} className="text-muted-foreground hover:text-foreground"><X className="h-5 w-5" /></button>
+            </div>
+            <form onSubmit={create} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="code">Code</Label>
+                <Input id="code" required value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} placeholder="SUMMER20" className="bg-card" />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Type</Label>
+                  <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} className="flex h-10 w-full rounded-lg border border-border bg-card px-3 text-sm">
+                    <option value="percent">Percent</option>
+                    <option value="fixed">Fixed</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="value">Value</Label>
+                  <Input id="value" type="number" step="0.01" required value={form.value} onChange={(e) => setForm({ ...form, value: e.target.value })} className="bg-card" />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="limit">Usage Limit</Label>
+                <Input id="limit" type="number" value={form.usage_limit} onChange={(e) => setForm({ ...form, usage_limit: e.target.value })} className="bg-card" />
+              </div>
+              <Button type="submit" className="w-full gradient-primary text-white hover:opacity-90">Create Coupon</Button>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
