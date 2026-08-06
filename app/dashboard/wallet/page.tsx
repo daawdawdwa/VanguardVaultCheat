@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { Wallet, Plus, Loader2, Upload, Clock, Check, X, QrCode, Gift } from 'lucide-react';
+import { Wallet, Plus, Loader2, Upload, Clock, Check, X, QrCode, Gift, ShoppingBag } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth-context';
 import { Button } from '@/components/ui/button';
@@ -91,7 +91,6 @@ export default function WalletPage() {
     let finalSlipUrl = '';
 
     if (paymentMethod === 'qrcode' && slipFile) {
-      // อัปโหลดไฟล์สลิปไปยัง Supabase Storage (สมมติว่าใช้ bucket ชื่อ 'slips')
       const fileExt = slipFile.name.split('.').pop();
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
       const { data: uploadData, error: uploadError } = await supabase.storage
@@ -99,14 +98,13 @@ export default function WalletPage() {
         .upload(`public/${fileName}`, slipFile);
 
       if (uploadError) {
-        // หากไม่มี bucket ให้ใช้ชื่อไฟล์แทนชั่วคราวเพื่อให้ระบบไปต่อได้
         finalSlipUrl = slipFile.name; 
       } else {
         const { data: publicUrlData } = supabase.storage.from('slips').getPublicUrl(`public/${fileName}`);
         finalSlipUrl = publicUrlData.publicUrl;
       }
     } else if (paymentMethod === 'truemoney') {
-      finalSlipUrl = giftLink; // เก็บลิงก์ซองของขวัญแทน URL สลิป
+      finalSlipUrl = giftLink;
     }
 
     const { error } = await supabase.from('topup_requests').insert({
@@ -127,7 +125,6 @@ export default function WalletPage() {
     setAmount('');
     setSlipFile(null);
     setGiftLink('');
-    // Reset file input
     const fileInput = document.getElementById('slip') as HTMLInputElement;
     if (fileInput) fileInput.value = '';
     load();
