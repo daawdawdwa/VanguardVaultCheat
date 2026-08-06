@@ -4,8 +4,8 @@ import { ProductsFilters } from '@/components/product/products-filters';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Products',
-  description: 'Browse our full catalog of premium digital game keys.',
+  title: 'สินค้าทั้งหมด',
+  description: 'เรียกดูแคตตาล็อกคีย์เกมดิจิทัลพรีเมียมทั้งหมดของเรา',
 };
 
 type SearchParams = {
@@ -38,11 +38,11 @@ export default async function ProductsPage({ searchParams }: { searchParams: Sea
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
       <div className="mb-8">
         <h1 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">
-          All Products
+          สินค้าทั้งหมด
         </h1>
         <p className="mt-2 text-muted-foreground">
-          {filtered.length} {filtered.length === 1 ? 'game' : 'games'} available
-          {categorySlug && ` in ${categories.find((c) => c.slug === categorySlug)?.name ?? categorySlug}`}
+          พบ {filtered.length} เกม
+          {categorySlug && ` ในหมวดหมู่ ${categories.find((c) => c.slug === categorySlug)?.name ?? categorySlug}`}
         </p>
       </div>
 
@@ -54,7 +54,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Sea
         </div>
       ) : filtered.length === 0 ? (
         <div className="rounded-xl border border-border bg-card p-12 text-center">
-          <p className="text-muted-foreground">No products found. Try adjusting your filters.</p>
+          <p className="text-muted-foreground">ไม่พบสินค้า ลองปรับเปลี่ยนตัวกรองของคุณดู</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
