@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Plus, Loader2, Key, Upload, Trash2 } from 'lucide-react';
+import { Plus, Loader2, Key, Upload, Trash2, X } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -44,20 +44,20 @@ export default function AdminKeysPage() {
 
   const importKeys = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!productId) { toast.error('Select a product'); return; }
+    if (!productId) { toast.error('กรุณาเลือกสินค้า'); return; }
     const lines = keyText.split('\n').map((l) => l.trim()).filter(Boolean);
-    if (lines.length === 0) { toast.error('Enter at least one key'); return; }
+    if (lines.length === 0) { toast.error('กรุณากรอกคีย์อย่างน้อย 1 รายการ'); return; }
     const rows = lines.map((k) => ({ product_id: productId, key: k, status: 'unused' }));
     const { error } = await supabase.from('license_keys').insert(rows);
     if (error) { toast.error(error.message); return; }
-    toast.success(`${lines.length} keys imported`);
+    toast.success(`นำเข้าคีย์ ${lines.length} รายการสำเร็จ`);
     setShowForm(false);
     setKeyText('');
     load();
   };
 
   const generateKeys = async () => {
-    if (!productId) { toast.error('Select a product'); return; }
+    if (!productId) { toast.error('กรุณาเลือกสินค้า'); return; }
     const count = parseInt(genCount) || 10;
     const prefix = 'GV-';
     const rows = Array.from({ length: count }, () => {
@@ -67,15 +67,15 @@ export default function AdminKeysPage() {
     });
     const { error } = await supabase.from('license_keys').insert(rows);
     if (error) { toast.error(error.message); return; }
-    toast.success(`${count} keys generated`);
+    toast.success(`สร้างคีย์จำนวน ${count} รายการสำเร็จ`);
     load();
   };
 
   const removeKey = async (id: string) => {
-    if (!confirm('Delete this key?')) return;
+    if (!confirm('คุณต้องการลบคีย์นี้ใช่หรือไม่?')) return;
     const { error } = await supabase.from('license_keys').delete().eq('id', id);
     if (error) { toast.error(error.message); return; }
-    toast.success('Key deleted');
+    toast.success('ลบคีย์สำเร็จ');
     load();
   };
 
@@ -86,47 +86,58 @@ export default function AdminKeysPage() {
     return 'bg-muted text-muted-foreground';
   };
 
+  const getStatusLabel = (s: string) => {
+    if (s === 'sold') return 'ขายแล้ว';
+    if (s === 'unused') return 'ยังไม่ใช้งาน';
+    if (s === 'reserved') return 'จองแล้ว';
+    return s;
+  };
+
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
-        <h2 className="font-display text-xl font-semibold">License Keys</h2>
+        <h2 className="font-display text-xl font-semibold">จัดการคีย์ลิขสิทธิ์</h2>
         <Button onClick={() => setShowForm(true)} className="gradient-primary text-white hover:opacity-90">
           <Plus className="mr-2 h-4 w-4" />
-          Import / Generate
+          นำเข้า / สร้างคีย์
         </Button>
       </div>
 
       {/* Quick generate */}
       <div className="mb-6 rounded-2xl border border-border bg-card p-4">
-        <h3 className="mb-3 text-sm font-medium">Quick Generate</h3>
+        <h3 className="mb-3 text-sm font-medium">สร้างคีย์ด่วน</h3>
         <div className="flex flex-wrap gap-3">
           <select
             value={productId}
             onChange={(e) => setProductId(e.target.value)}
             className="flex h-10 rounded-lg border border-border bg-card px-3 text-sm"
           >
-            <option value="">Select product...</option>
+            <option value="">เลือกสินค้า...</option>
             {products.map((p) => (
               <option key={p.id} value={p.id}>{p.title}</option>
             ))}
           </select>
-          <Input type="number" value={genCount} onChange={(e) => setGenCount(e.target.value)} className="w-32 bg-card" placeholder="Count" />
+          <Input type="number" value={genCount} onChange={(e) => setGenCount(e.target.value)} className="w-32 bg-card" placeholder="จำนวน" />
           <Button onClick={generateKeys} variant="outline">
             <Key className="mr-2 h-4 w-4" />
-            Generate
+            สร้างคีย์
           </Button>
         </div>
       </div>
 
       {loading ? (
         <div className="flex h-32 items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
+      ) : keys.length === 0 ? (
+        <div className="rounded-xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">
+          ยังไม่มีคีย์ลิขสิทธิ์ในระบบ
+        </div>
       ) : (
         <div className="space-y-2">
           {keys.map((k) => (
             <div key={k.id} className="flex items-center gap-3 rounded-xl border border-border bg-card p-3">
               <code className="flex-1 truncate rounded-lg border border-border bg-background px-3 py-1.5 text-xs">{k.key}</code>
               <span className="text-xs text-muted-foreground">{k.product?.title ?? '—'}</span>
-              <Badge className={statusColor(k.status)}>{k.status}</Badge>
+              <Badge className={statusColor(k.status)}>{getStatusLabel(k.status)}</Badge>
               <button onClick={() => removeKey(k.id)} className="flex h-8 w-8 items-center justify-center rounded-lg border border-border text-muted-foreground hover:text-destructive">
                 <Trash2 className="h-4 w-4" />
               </button>
@@ -138,23 +149,26 @@ export default function AdminKeysPage() {
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
           <div className="glass-strong max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-border p-6">
-            <h3 className="mb-4 font-display text-lg font-semibold">Import Keys</h3>
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="font-display text-lg font-semibold">นำเข้าคีย์</h3>
+              <button onClick={() => setShowForm(false)} className="text-muted-foreground hover:text-foreground"><X className="h-5 w-5" /></button>
+            </div>
             <form onSubmit={importKeys} className="space-y-4">
               <div className="space-y-2">
-                <Label>Product</Label>
+                <Label>สินค้า</Label>
                 <select
                   value={productId}
                   onChange={(e) => setProductId(e.target.value)}
                   className="flex h-10 w-full rounded-lg border border-border bg-card px-3 text-sm"
                 >
-                  <option value="">Select product...</option>
+                  <option value="">เลือกสินค้า...</option>
                   {products.map((p) => (
                     <option key={p.id} value={p.id}>{p.title}</option>
                   ))}
                 </select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="keys">Keys (one per line, or paste TXT/CSV content)</Label>
+                <Label htmlFor="keys">คีย์ (บรรทัดละ 1 รายการ หรือวางเนื้อหาจากไฟล์ TXT/CSV)</Label>
                 <Textarea
                   id="keys"
                   value={keyText}
@@ -166,7 +180,7 @@ export default function AdminKeysPage() {
               </div>
               <Button type="submit" className="w-full gradient-primary text-white hover:opacity-90">
                 <Upload className="mr-2 h-4 w-4" />
-                Import Keys
+                นำเข้าคีย์
               </Button>
             </form>
           </div>
