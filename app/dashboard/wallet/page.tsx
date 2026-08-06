@@ -99,7 +99,7 @@ export default function WalletPage() {
         <div className="relative flex items-center justify-between">
           <div>
             <p className="text-sm text-muted-foreground">ยอดเงินคงเหลือ</p>
-            <p className="mt-1 font-display text-4xl font-bold">{formatPrice(balance)}</p>
+            <p className="mt-1 font-display text-4xl font-bold">฿{balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
           </div>
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl gradient-primary">
             <Wallet className="h-7 w-7 text-white" />
@@ -156,7 +156,7 @@ export default function WalletPage() {
                   <li key={t.id} className="flex items-center justify-between rounded-lg border border-border bg-background p-3">
                     <div className="flex items-center gap-2">
                       <Clock className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm">{formatPrice(t.amount)}</span>
+                      <span className="text-sm">฿{t.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                     </div>
                     <span className={`flex items-center gap-1 text-xs ${
                       t.status === 'approved' ? 'text-green-500' : t.status === 'rejected' ? 'text-destructive' : 'text-muted-foreground'
@@ -189,7 +189,7 @@ export default function WalletPage() {
                   </div>
                   <div className="text-right">
                     <p className={`text-sm font-semibold ${tx.amount < 0 ? 'text-destructive' : 'text-green-500'}`}>
-                      {tx.amount < 0 ? '-' : '+'}{formatPrice(Math.abs(tx.amount))}
+                      {tx.amount < 0 ? '-' : '+'}฿{Math.abs(tx.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </p>
                     <p className="text-xs capitalize text-muted-foreground">{tx.status}</p>
                   </div>
