@@ -35,20 +35,20 @@ export default function KeysPage() {
   const copyKey = (key: string) => {
     navigator.clipboard.writeText(key);
     setCopied(key);
-    toast.success('Key copied');
+    toast.success('คัดลอกคีย์แล้ว');
     setTimeout(() => setCopied(null), 2000);
   };
 
   return (
     <div>
-      <h1 className="mb-8 font-display text-2xl font-bold tracking-tight">License Keys</h1>
+      <h1 className="mb-8 font-display text-2xl font-bold tracking-tight">คีย์การใช้งาน</h1>
 
       {keys.length === 0 ? (
         <div className="rounded-2xl border border-border bg-card p-12 text-center">
           <Key className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
-          <p className="text-muted-foreground">No license keys yet.</p>
+          <p className="text-muted-foreground">ยังไม่มีคีย์การใช้งาน</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            Keys are assigned automatically when you complete a purchase.
+            คีย์จะถูกกำหนดให้อัตโนมัติเมื่อคุณทำการสั่งซื้อสำเร็จ
           </p>
         </div>
       ) : (
@@ -60,9 +60,9 @@ export default function KeysPage() {
                   <Key className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium">{k.product?.title ?? 'Product'}</p>
+                  <p className="text-sm font-medium">{k.product?.title ?? 'สินค้า'}</p>
                   <p className="text-xs text-muted-foreground">
-                    {k.sold_at ? new Date(k.sold_at).toLocaleDateString() : ''}
+                    {k.sold_at ? new Date(k.sold_at).toLocaleDateString('th-TH') : ''}
                   </p>
                 </div>
               </div>
