@@ -15,24 +15,24 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'sw
 const sora = Sora({ subsets: ['latin'], variable: '--font-sora', display: 'swap' });
 
 export const metadata: Metadata = {
-  title: { default: 'GameVault — Premium Digital Game Keys', template: '%s — GameVault' },
-  description: 'Buy digital game files and license keys instantly. Secure delivery, wallet top-ups, and a premium catalog of PC games.',
-  keywords: ['game keys', 'digital games', 'pc games', 'license keys', 'game store'],
+  title: { default: 'GameVault — คีย์เกมดิจิทัลพรีเมียม', template: '%s — GameVault' },
+  description: 'ซื้อไฟล์เกมดิจิทัลและคีย์การใช้งานได้ทันที จัดส่งปลอดภัย เติมเงินเข้ากระเป๋า และพบกับคลังเกม PC ระดับพรีเมียม',
+  keywords: ['คีย์เกม', 'เกมดิจิทัล', 'เกม PC', 'คีย์การใช้งาน', 'ร้านค้าเกม'],
   manifest: '/manifest.json',
   openGraph: {
-    title: 'GameVault — Premium Digital Game Keys',
-    description: 'Buy digital game files and license keys instantly. Secure delivery, wallet top-ups, and a premium catalog.',
+    title: 'GameVault — คีย์เกมดิจิทัลพรีเมียม',
+    description: 'ซื้อไฟล์เกมดิจิทัลและคีย์การใช้งานได้ทันที จัดส่งปลอดภัย เติมเงินเข้ากระเป๋า และคลังเกมพรีเมียม',
     type: 'website',
     siteName: 'GameVault',
   },
-  twitter: { card: 'summary_large_image', title: 'GameVault — Premium Digital Game Keys', description: 'Buy digital game files and license keys instantly.' },
+  twitter: { card: 'summary_large_image', title: 'GameVault — คีย์เกมดิจิทัลพรีเมียม', description: 'ซื้อไฟล์เกมดิจิทัลและคีย์การใช้งานได้ทันที' },
 };
 
 export const themeColor = '#EF4444';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="th" suppressHydrationWarning>
       <head>
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#EF4444" />
