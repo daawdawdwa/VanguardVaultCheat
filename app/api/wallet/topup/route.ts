@@ -31,8 +31,7 @@ export async function POST(request: Request) {
       const slipData = new FormData();
       slipData.append('files', slipFile);
 
-      // ใช้ Branch ID ต่อท้าย URL และใส่ API Key ใน Header ตามที่ SlipOK กำหนด
-      const verifyRes = await fetch(`https://api.slipok.com/api/line/apikey/73152`, {
+      const verifyRes = await fetch(`https://api.slipok.com/api/line/apikey/${SLIPOK_BRANCH_ID}`, {
          method: 'POST', 
          body: slipData, 
          headers: { 
