@@ -26,6 +26,7 @@ export function ThemeSwitcher({ className }: { className?: string }) {
       {options.map((opt) => (
         <button
           key={opt.value}
+          type="button"
           onClick={() => setTheme(opt.value)}
           className={cn(
             'flex h-8 w-8 items-center justify-center rounded-md transition-colors',
