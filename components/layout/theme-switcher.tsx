@@ -1,4 +1,3 @@
-```tsx
 'use client';
 
 import { Moon, Sun } from 'lucide-react';
@@ -11,31 +10,15 @@ interface ThemeSwitcherProps {
   className?: string;
 }
 
-export function ThemeSwitcher({ className }: ThemeSwitcherProps) {
-  const themeContext = useTheme();
+export function ThemeSwitcher({
+  className,
+}: ThemeSwitcherProps) {
+  const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
-
-  useEffect(() => {
-    console.log('[ThemeSwitcher] mounted:', mounted);
-    console.log('[ThemeSwitcher] context:', {
-      theme: themeContext.theme,
-      resolvedTheme: themeContext.resolvedTheme,
-      forcedTheme: themeContext.forcedTheme,
-      themes: themeContext.themes,
-      setTheme: typeof themeContext.setTheme,
-    });
-  }, [
-    mounted,
-    themeContext.theme,
-    themeContext.resolvedTheme,
-    themeContext.forcedTheme,
-    themeContext.themes,
-    themeContext.setTheme,
-  ]);
 
   if (!mounted) {
     return (
@@ -49,34 +32,21 @@ export function ThemeSwitcher({ className }: ThemeSwitcherProps) {
     );
   }
 
-  const isDark = themeContext.theme === 'dark';
+  const isDark = theme === 'dark';
 
   const handleToggle = () => {
-    console.log('[ThemeSwitcher] CLICK');
-
-    console.log('[ThemeSwitcher] BEFORE:', {
-      theme: themeContext.theme,
-      resolvedTheme: themeContext.resolvedTheme,
-      setTheme: typeof themeContext.setTheme,
-    });
-
-    if (typeof themeContext.setTheme !== 'function') {
-      console.error('[ThemeSwitcher] setTheme is not available');
-      return;
-    }
-
-    const nextTheme = isDark ? 'light' : 'dark';
-
-    console.log('[ThemeSwitcher] SET:', nextTheme);
-
-    themeContext.setTheme(nextTheme);
+    setTheme(isDark ? 'light' : 'dark');
   };
 
   return (
     <button
       type="button"
       onClick={handleToggle}
-      aria-label={isDark ? 'เปลี่ยนเป็นโหมดสว่าง' : 'เปลี่ยนเป็นโหมดมืด'}
+      aria-label={
+        isDark
+          ? 'เปลี่ยนเป็นโหมดสว่าง'
+          : 'เปลี่ยนเป็นโหมดมืด'
+      }
       title={isDark ? 'โหมดสว่าง' : 'โหมดมืด'}
       className={cn(
         'relative flex h-9 w-9 items-center justify-center',
@@ -102,4 +72,3 @@ export function ThemeSwitcher({ className }: ThemeSwitcherProps) {
     </button>
   );
 }
-```
