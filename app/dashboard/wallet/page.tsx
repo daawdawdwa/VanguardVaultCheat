@@ -89,6 +89,13 @@ export default function WalletPage() {
     setSubmitting(true);
 
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const accessToken = session?.access_token;
+
+      if (!accessToken) {
+        throw new Error('กรุณาเข้าสู่ระบบใหม่อีกครั้ง (Unauthorized)');
+      }
+
       const formData = new FormData();
       formData.append('method', paymentMethod);
       formData.append('amount', amount);
@@ -101,6 +108,9 @@ export default function WalletPage() {
 
       const res = await fetch('/api/wallet/topup', {
         method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        },
         body: formData,
       });
 
