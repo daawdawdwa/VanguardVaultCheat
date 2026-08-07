@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-const MY_ACCOUNT_NAME = process.env.MY_ACCOUNT_NAME || "สุริยันต์ ปันสาร"; 
 const SLIPOK_API_KEY = process.env.SLIPOK_API_KEY || "SLIPOKPPVSNU9"; 
 const SLIPOK_BRANCH_ID = process.env.SLIPOK_BRANCH_ID || "73152"; 
 const TRUEMONEY_MOBILE = process.env.TRUEMONEY_MOBILE || "0963174205"; 
@@ -56,17 +55,22 @@ export async function POST(request: Request) {
       }
       
       const receiverData = slipResult.data.receiver || {};
-      const receiverName = (receiverData.name || receiverData.displayName || "").trim();
+      const receiverName = (receiverData.name || receiverData.displayName || "").toUpperCase();
       
-      const hasName = receiverName.includes("สุริยันต์") || receiverName.includes("ปันสาร");
+      // รองรับทั้งภาษาไทยและภาษาอังกฤษ (SURIYAN) ที่ระบบธนาคารส่งมา
+      const isValidReceiver = 
+        receiverName.includes("สุริยันต์") || 
+        receiverName.includes("ปันสาร") || 
+        receiverName.includes("SURIYAN");
       
-      if (!hasName) {
-        throw new Error(`ชื่อผู้รับในสลิปคือ "${receiverName}" ซึ่งไม่ตรงกับบัญชีของคุณ (ต้องเป็น สุริยันต์ ปันสาร)`);
+      if (!isValidReceiver) {
+        throw new Error(`ชื่อผู้รับในสลิปคือ "${receiverName}" ซึ่งไม่ตรงกับบัญชีของคุณ`);
       }
       
       transactionRef = slipResult.data.transRef; 
       actualAmount = slipResult.data.amount;     
 
+      // ตรวจสอบยอดเงิน (กรณีทดสอบโอน 1 บาท แต่กรอกเติม 10 บาท ให้ปรับเงื่อนไขตรงนี้หากต้องการทดสอบ)
       if (actualAmount !== amountToTopup) {
          throw new Error(`ยอดเงินในสลิป (฿${actualAmount}) ไม่ตรงกับที่กรอก (฿${amountToTopup})`);
       }
