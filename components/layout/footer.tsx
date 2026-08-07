@@ -2,21 +2,21 @@ import Link from 'next/link';
 import { Gamepad2, Twitter, Github, Mail } from 'lucide-react';
 
 const footerLinks = {
-  Store: [
-    { href: '/products', label: 'All Products' },
-    { href: '/categories', label: 'Categories' },
-    { href: '/search', label: 'Search' },
+  ร้านค้า: [
+    { href: '/products', label: 'สินค้าทั้งหมด' },
+    { href: '/categories', label: 'หมวดหมู่' },
+    { href: '/search', label: 'ค้นหา' },
   ],
-  Account: [
-    { href: '/dashboard', label: 'Dashboard' },
-    { href: '/dashboard/wallet', label: 'Wallet' },
-    { href: '/dashboard/orders', label: 'Orders' },
-    { href: '/dashboard/downloads', label: 'Downloads' },
+  บัญชีผู้ใช้: [
+    { href: '/dashboard', label: 'แดชบอร์ด' },
+    { href: '/dashboard/wallet', label: 'กระเป๋าเงิน' },
+    { href: '/dashboard/orders', label: 'คำสั่งซื้อ' },
+    { href: '/dashboard/downloads', label: 'ดาวน์โหลด' },
   ],
-  Support: [
-    { href: '/faq', label: 'FAQ' },
-    { href: '/support', label: 'Contact Support' },
-    { href: '/news', label: 'News' },
+  ช่วยเหลือ: [
+    { href: '/faq', label: 'คำถามที่พบบ่อย' },
+    { href: '/support', label: 'ติดต่อฝ่ายสนับสนุน' },
+    { href: '/news', label: 'ข่าวสาร' },
   ],
 };
 
@@ -30,19 +30,19 @@ export function Footer() {
               <div className="flex h-9 w-9 items-center justify-center rounded-xl gradient-primary">
                 <Gamepad2 className="h-5 w-5 text-white" />
               </div>
-              <span className="font-display text-lg font-bold">GameVault</span>
+              <span className="font-display text-lg font-bold">VanguardVaultCheat</span>
             </Link>
             <p className="mt-4 max-w-xs text-sm text-muted-foreground">
-              Premium digital game keys and files. Instant delivery, secure payments, and a catalog worth exploring.
+              คีย์เกมดิจิทัลและไฟล์พรีเมียม จัดส่งทันที ชำระเงินปลอดภัย และแคตตาล็อกที่คุณต้องลองสำรวจ
             </p>
             <div className="mt-4 flex gap-3">
-              <a href="#" className="flex h-9 w-9 items-center justify-center rounded-lg bg-card text-muted-foreground transition-colors hover:text-foreground" aria-label="Twitter">
+              <a href="#" className="flex h-9 w-9 items-center justify-center rounded-lg bg-card text-muted-foreground transition-colors hover:text-foreground" aria-label="ทวิตเตอร์">
                 <Twitter className="h-4 w-4" />
               </a>
-              <a href="#" className="flex h-9 w-9 items-center justify-center rounded-lg bg-card text-muted-foreground transition-colors hover:text-foreground" aria-label="GitHub">
+              <a href="#" className="flex h-9 w-9 items-center justify-center rounded-lg bg-card text-muted-foreground transition-colors hover:text-foreground" aria-label="กิตฮับ">
                 <Github className="h-4 w-4" />
               </a>
-              <a href="#" className="flex h-9 w-9 items-center justify-center rounded-lg bg-card text-muted-foreground transition-colors hover:text-foreground" aria-label="Email">
+              <a href="#" className="flex h-9 w-9 items-center justify-center rounded-lg bg-card text-muted-foreground transition-colors hover:text-foreground" aria-label="อีเมล">
                 <Mail className="h-4 w-4" />
               </a>
             </div>
@@ -66,12 +66,12 @@ export function Footer() {
 
         <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-border pt-6 sm:flex-row">
           <p className="text-xs text-muted-foreground">
-            &copy; {new Date().getFullYear()} GameVault. All rights reserved.
+            &copy; {new Date().getFullYear()} VanguardVaultCheat. สงวนลิขสิทธิ์ทั้งหมด
           </p>
           <div className="flex gap-4 text-xs text-muted-foreground">
-            <a href="#" className="hover:text-foreground">Privacy</a>
-            <a href="#" className="hover:text-foreground">Terms</a>
-            <a href="#" className="hover:text-foreground">Refund Policy</a>
+            <a href="#" className="hover:text-foreground">ความเป็นส่วนตัว</a>
+            <a href="#" className="hover:text-foreground">เงื่อนไขการใช้งาน</a>
+            <a href="#" className="hover:text-foreground">นโยบายการคืนเงิน</a>
           </div>
         </div>
       </div>
