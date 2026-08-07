@@ -1,3 +1,4 @@
+// components/layout/theme-switcher.tsx (หรือไฟล์ปุ่มเปลี่ยนธีมของคุณ)
 'use client';
 
 import { useTheme } from 'next-themes';
