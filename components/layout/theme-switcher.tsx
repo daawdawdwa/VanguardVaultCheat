@@ -11,7 +11,7 @@ interface ThemeSwitcherProps {
 }
 
 export function ThemeSwitcher({ className }: ThemeSwitcherProps) {
-  const { resolvedTheme, setTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -30,26 +30,17 @@ export function ThemeSwitcher({ className }: ThemeSwitcherProps) {
     );
   }
 
-  const isDark = resolvedTheme === 'dark';
+  const isDark = theme === 'dark';
 
   const handleToggle = () => {
-    const nextTheme = isDark ? 'light' : 'dark';
-
-    console.log('[ThemeSwitcher]', {
-      resolvedTheme,
-      nextTheme,
-    });
-
-    setTheme(nextTheme);
+    setTheme(isDark ? 'light' : 'dark');
   };
 
   return (
     <button
       type="button"
       onClick={handleToggle}
-      aria-label={
-        isDark ? 'เปลี่ยนเป็นโหมดสว่าง' : 'เปลี่ยนเป็นโหมดมืด'
-      }
+      aria-label={isDark ? 'เปลี่ยนเป็นโหมดสว่าง' : 'เปลี่ยนเป็นโหมดมืด'}
       title={isDark ? 'โหมดสว่าง' : 'โหมดมืด'}
       className={cn(
         'relative flex h-9 w-9 items-center justify-center overflow-hidden rounded-lg',
