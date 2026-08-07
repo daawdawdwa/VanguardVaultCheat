@@ -33,14 +33,23 @@ export function ThemeSwitcher({ className }: ThemeSwitcherProps) {
   const isDark = resolvedTheme === 'dark';
 
   const handleToggle = () => {
-    setTheme(isDark ? 'light' : 'dark');
+    const nextTheme = isDark ? 'light' : 'dark';
+
+    console.log('[ThemeSwitcher]', {
+      resolvedTheme,
+      nextTheme,
+    });
+
+    setTheme(nextTheme);
   };
 
   return (
     <button
       type="button"
       onClick={handleToggle}
-      aria-label={isDark ? 'เปลี่ยนเป็นโหมดสว่าง' : 'เปลี่ยนเป็นโหมดมืด'}
+      aria-label={
+        isDark ? 'เปลี่ยนเป็นโหมดสว่าง' : 'เปลี่ยนเป็นโหมดมืด'
+      }
       title={isDark ? 'โหมดสว่าง' : 'โหมดมืด'}
       className={cn(
         'relative flex h-9 w-9 items-center justify-center overflow-hidden rounded-lg',
