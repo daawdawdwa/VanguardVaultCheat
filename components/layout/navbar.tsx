@@ -16,11 +16,11 @@ import {
 import { cn } from '@/lib/utils';
 
 const navLinks = [
-  { href: '/products', label: 'Products' },
-  { href: '/categories', label: 'Categories' },
-  { href: '/news', label: 'News' },
-  { href: '/faq', label: 'FAQ' },
-  { href: '/support', label: 'Support' },
+  { href: '/products', label: 'สินค้า' },
+  { href: '/categories', label: 'หมวดหมู่' },
+  { href: '/news', label: 'ข่าวสาร' },
+  { href: '/faq', label: 'คำถามที่พบบ่อย' },
+  { href: '/support', label: 'ช่วยเหลือ' },
 ];
 
 export function Navbar() {
@@ -66,7 +66,7 @@ export function Navbar() {
         <form action="/search" className="hidden flex-1 max-w-xs lg:block">
           <div className="relative">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input name="q" placeholder="Search games..." className="h-9 border-border bg-card/50 pl-9" />
+            <Input name="q" placeholder="ค้นหาเกม..." className="h-9 border-border bg-card/50 pl-9" />
           </div>
         </form>
 
@@ -74,7 +74,7 @@ export function Navbar() {
           <ThemeSwitcher className="hidden sm:flex" />
 
           {user && (
-            <Link href="/dashboard/notifications" className="relative flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-card hover:text-foreground" aria-label="Notifications">
+            <Link href="/dashboard/notifications" className="relative flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-card hover:text-foreground" aria-label="การแจ้งเตือน">
               <Bell className="h-5 w-5" />
               {unreadCount > 0 && (
                 <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full gradient-primary px-1 text-[10px] font-bold text-white">
@@ -84,7 +84,7 @@ export function Navbar() {
             </Link>
           )}
 
-          <button onClick={toggle} className="relative flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-card hover:text-foreground" aria-label="Cart">
+          <button onClick={toggle} className="relative flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-card hover:text-foreground" aria-label="ตะกร้าสินค้า">
             <ShoppingCart className="h-5 w-5" />
             {count > 0 && (
               <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full gradient-primary px-1 text-[10px] font-bold text-white">
@@ -103,28 +103,28 @@ export function Navbar() {
               <DropdownMenuContent align="end" className="w-56 glass-strong">
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{profile?.username ?? 'Account'}</p>
+                    <p className="text-sm font-medium leading-none">{profile?.username ?? 'บัญชีผู้ใช้'}</p>
                     <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem asChild><Link href="/dashboard" className="cursor-pointer"><LayoutDashboard className="mr-2 h-4 w-4" />Dashboard</Link></DropdownMenuItem>
-                <DropdownMenuItem asChild><Link href="/dashboard/wallet" className="cursor-pointer"><Wallet className="mr-2 h-4 w-4" />Wallet</Link></DropdownMenuItem>
-                {isAdmin && <DropdownMenuItem asChild><Link href="/admin" className="cursor-pointer"><LayoutDashboard className="mr-2 h-4 w-4" />Admin Panel</Link></DropdownMenuItem>}
+                <DropdownMenuItem asChild><Link href="/dashboard" className="cursor-pointer"><LayoutDashboard className="mr-2 h-4 w-4" />แดชบอร์ด</Link></DropdownMenuItem>
+                <DropdownMenuItem asChild><Link href="/dashboard/wallet" className="cursor-pointer"><Wallet className="mr-2 h-4 w-4" />กระเป๋าเงิน</Link></DropdownMenuItem>
+                {isAdmin && <DropdownMenuItem asChild><Link href="/admin" className="cursor-pointer"><LayoutDashboard className="mr-2 h-4 w-4" />แผงควบคุมแอดมิน</Link></DropdownMenuItem>}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => signOut()} className="cursor-pointer text-destructive focus:text-destructive">
-                  <LogOut className="mr-2 h-4 w-4" />Sign out
+                  <LogOut className="mr-2 h-4 w-4" />ออกจากระบบ
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
             <div className="hidden items-center gap-2 sm:flex">
-              <Link href="/login"><Button variant="ghost" size="sm">Sign in</Button></Link>
-              <Link href="/register"><Button size="sm" className="gradient-primary text-white hover:opacity-90">Sign up</Button></Link>
+              <Link href="/login"><Button variant="ghost" size="sm">เข้าสู่ระบบ</Button></Link>
+              <Link href="/register"><Button size="sm" className="gradient-primary text-white hover:opacity-90">สมัครสมาชิก</Button></Link>
             </div>
           )}
 
-          <button onClick={() => setMobileOpen((o) => !o)} className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-card hover:text-foreground md:hidden" aria-label="Menu">
+          <button onClick={() => setMobileOpen((o) => !o)} className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-card hover:text-foreground md:hidden" aria-label="เมนู">
             {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>
@@ -136,7 +136,7 @@ export function Navbar() {
             <form action="/search" className="mb-2">
               <div className="relative">
                 <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input name="q" placeholder="Search games..." className="h-9 border-border bg-card/50 pl-9" />
+                <Input name="q" placeholder="ค้นหาเกม..." className="h-9 border-border bg-card/50 pl-9" />
               </div>
             </form>
             {navLinks.map((link) => (
@@ -149,10 +149,10 @@ export function Navbar() {
               {!user && (
                 <div className="flex gap-2">
                   <Link href="/login" className="flex-1" onClick={() => setMobileOpen(false)}>
-                    <Button variant="outline" size="sm" className="w-full">Sign in</Button>
+                    <Button variant="outline" size="sm" className="w-full">เข้าสู่ระบบ</Button>
                   </Link>
                   <Link href="/register" className="flex-1" onClick={() => setMobileOpen(false)}>
-                    <Button size="sm" className="w-full gradient-primary text-white hover:opacity-90">Sign up</Button>
+                    <Button size="sm" className="w-full gradient-primary text-white hover:opacity-90">สมัครสมาชิก</Button>
                   </Link>
                 </div>
               )}
