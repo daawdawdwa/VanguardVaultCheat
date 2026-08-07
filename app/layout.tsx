@@ -38,7 +38,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="theme-color" content="#EF4444" />
       </head>
       <body className={`${inter.variable} ${sora.variable} min-h-screen bg-background font-sans text-foreground antialiased`}>
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <AuthProvider>
             <CartProvider>
               <div className="relative flex min-h-screen flex-col">
