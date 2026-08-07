@@ -55,9 +55,13 @@ export async function POST(request: Request) {
         throw new Error('สลิปไม่ถูกต้อง หรืออ่านสลิปไม่ได้: ' + (slipResult.message || ''));
       }
       
-      const receiverName = slipResult.data.receiver.name || "";
-      if (!receiverName.includes("สุริยันต์") || !receiverName.includes("ปันสาร")) {
-        throw new Error(`บัญชีผู้รับโอนไม่ถูกต้อง (ต้องเป็น ${MY_ACCOUNT_NAME} เท่านั้น)`);
+      const receiverData = slipResult.data.receiver || {};
+      const receiverName = (receiverData.name || receiverData.displayName || "").trim();
+      
+      const hasName = receiverName.includes("สุริยันต์") || receiverName.includes("ปันสาร");
+      
+      if (!hasName) {
+        throw new Error(`ชื่อผู้รับในสลิปคือ "${receiverName}" ซึ่งไม่ตรงกับบัญชีของคุณ (ต้องเป็น สุริยันต์ ปันสาร)`);
       }
       
       transactionRef = slipResult.data.transRef; 
