@@ -57,7 +57,6 @@ export async function POST(request: Request) {
       const receiverData = slipResult.data.receiver || {};
       const receiverName = (receiverData.name || receiverData.displayName || "").toUpperCase();
       
-      // รองรับทั้งภาษาไทยและภาษาอังกฤษ (SURIYAN) ที่ระบบธนาคารส่งมา
       const isValidReceiver = 
         receiverName.includes("สุริยันต์") || 
         receiverName.includes("ปันสาร") || 
@@ -70,7 +69,6 @@ export async function POST(request: Request) {
       transactionRef = slipResult.data.transRef; 
       actualAmount = slipResult.data.amount;     
 
-      // ตรวจสอบยอดเงิน (กรณีทดสอบโอน 1 บาท แต่กรอกเติม 10 บาท ให้ปรับเงื่อนไขตรงนี้หากต้องการทดสอบ)
       if (actualAmount !== amountToTopup) {
          throw new Error(`ยอดเงินในสลิป (฿${actualAmount}) ไม่ตรงกับที่กรอก (฿${amountToTopup})`);
       }
@@ -133,11 +131,12 @@ export async function POST(request: Request) {
     const currentBalance = wallet ? wallet.balance : 0;
     const newBalance = currentBalance + actualAmount;
 
+    // แก้ไขจุดนี้โดยระบุ onConflict เป็น user_id เพื่อให้ระบบอัปเดตกระเป๋าเงินของ User คนนี้ได้อย่างถูกต้อง
     const { error: updateError } = await supabase
       .from('wallets')
-      .upsert({ user_id: user.id, balance: newBalance });
+      .upsert({ user_id: user.id, balance: newBalance }, { onConflict: 'user_id' });
 
-    if (updateError) throw new Error('เกิดข้อผิดพลาดในการอัปเดตยอดเงิน');
+    if (updateError) throw new Error('เกิดข้อผิดพลาดในการอัปเดตยอดเงิน: ' + updateError.message);
 
     const { error: txError } = await supabase
       .from('transactions')
