@@ -1,3 +1,4 @@
+// app/layout.tsx
 import './globals.css';
 import type { Metadata } from 'next';
 import { Inter, Sora } from 'next/font/google';
@@ -38,7 +39,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="theme-color" content="#EF4444" />
       </head>
       <body className={`${inter.variable} ${sora.variable} min-h-screen bg-background font-sans text-foreground antialiased`}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem storageKey="gamevault-theme">
           <AuthProvider>
             <CartProvider>
               <div className="relative flex min-h-screen flex-col">
