@@ -13,13 +13,19 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const supabase = createClient(
+  const supabaseAdmin = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    { auth: { persistSession: false } }
+  );
+
+  const supabaseAuth = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     { auth: { persistSession: false } }
   );
 
-  const { data: { user }, error: authError } = await supabase.auth.getUser(accessToken);
+  const { data: { user }, error: authError } = await supabaseAuth.auth.getUser(accessToken);
   if (authError || !user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
@@ -108,7 +114,7 @@ export async function POST(request: Request) {
       throw new Error('ช่องทางชำระเงินไม่ถูกต้อง');
     }
 
-    const { data: existingTx } = await supabase
+    const { data: existingTx } = await supabaseAdmin
       .from('transactions')
       .select('id')
       .eq('reference', transactionRef)
@@ -118,7 +124,7 @@ export async function POST(request: Request) {
       throw new Error('สลิปหรือซองของขวัญนี้ถูกใช้งานไปแล้ว ไม่สามารถเติมซ้ำได้');
     }
 
-    const { data: wallet, error: walletError } = await supabase
+    const { data: wallet, error: walletError } = await supabaseAdmin
       .from('wallets')
       .select('balance')
       .eq('user_id', user.id)
@@ -131,14 +137,13 @@ export async function POST(request: Request) {
     const currentBalance = wallet ? wallet.balance : 0;
     const newBalance = currentBalance + actualAmount;
 
-    // แก้ไขจุดนี้โดยระบุ onConflict เป็น user_id เพื่อให้ระบบอัปเดตกระเป๋าเงินของ User คนนี้ได้อย่างถูกต้อง
-    const { error: updateError } = await supabase
+    const { error: updateError } = await supabaseAdmin
       .from('wallets')
       .upsert({ user_id: user.id, balance: newBalance }, { onConflict: 'user_id' });
 
     if (updateError) throw new Error('เกิดข้อผิดพลาดในการอัปเดตยอดเงิน: ' + updateError.message);
 
-    const { error: txError } = await supabase
+    const { error: txError } = await supabaseAdmin
       .from('transactions')
       .insert({
         user_id: user.id,
