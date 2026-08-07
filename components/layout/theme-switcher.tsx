@@ -1,7 +1,6 @@
 'use client';
 
 import { Moon, Sun } from 'lucide-react';
-import { useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
 
 import { cn } from '@/lib/utils';
@@ -10,15 +9,55 @@ interface ThemeSwitcherProps {
   className?: string;
 }
 
+type Theme = 'light' | 'dark';
+
+function getTheme(): Theme {
+  if (typeof window === 'undefined') {
+    return 'dark';
+  }
+
+  const storedTheme = window.localStorage.getItem('theme');
+
+  if (storedTheme === 'light' || storedTheme === 'dark') {
+    return storedTheme;
+  }
+
+  return document.documentElement.classList.contains('light')
+    ? 'light'
+    : 'dark';
+}
+
+function applyTheme(theme: Theme) {
+  const html = document.documentElement;
+
+  html.classList.remove('light', 'dark');
+  html.classList.add(theme);
+
+  html.style.colorScheme = theme;
+
+  window.localStorage.setItem('theme', theme);
+}
+
 export function ThemeSwitcher({
   className,
 }: ThemeSwitcherProps) {
-  const { theme, setTheme } = useTheme();
+  const [theme, setTheme] = useState<Theme>('dark');
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    const currentTheme = getTheme();
+
+    setTheme(currentTheme);
     setMounted(true);
   }, []);
+
+  const handleToggle = () => {
+    const nextTheme: Theme =
+      theme === 'dark' ? 'light' : 'dark';
+
+    applyTheme(nextTheme);
+    setTheme(nextTheme);
+  };
 
   if (!mounted) {
     return (
@@ -33,10 +72,6 @@ export function ThemeSwitcher({
   }
 
   const isDark = theme === 'dark';
-
-  const handleToggle = () => {
-    setTheme(isDark ? 'light' : 'dark');
-  };
 
   return (
     <button
