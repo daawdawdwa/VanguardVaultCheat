@@ -1,43 +1,72 @@
-// components/layout/theme-switcher.tsx (หรือไฟล์ปุ่มเปลี่ยนธีมของคุณ)
 'use client';
 
+import { Moon, Sun } from 'lucide-react';
 import { useTheme } from 'next-themes';
-import { Moon, Sun, Monitor } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 
-export function ThemeSwitcher({ className }: { className?: string }) {
-  const { theme, setTheme } = useTheme();
+interface ThemeSwitcherProps {
+  className?: string;
+}
+
+export function ThemeSwitcher({ className }: ThemeSwitcherProps) {
+  const { resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   if (!mounted) {
-    return <div className={cn('h-9 w-9', className)} />;
+    return (
+      <div
+        className={cn(
+          'h-9 w-9 rounded-lg border border-border bg-card/50',
+          className
+        )}
+      />
+    );
   }
 
-  const options = [
-    { value: 'light', icon: Sun },
-    { value: 'dark', icon: Moon },
-    { value: 'system', icon: Monitor },
-  ];
+  const isDark = resolvedTheme === 'dark';
+
+  const toggleTheme = () => {
+    setTheme(isDark ? 'light' : 'dark');
+  };
 
   return (
-    <div className={cn('flex items-center gap-0.5 rounded-lg border border-border bg-card/50 p-0.5', className)}>
-      {options.map((opt) => (
-        <button
-          key={opt.value}
-          type="button"
-          onClick={() => setTheme(opt.value)}
-          className={cn(
-            'flex h-8 w-8 items-center justify-center rounded-md transition-colors',
-            theme === opt.value ? 'bg-primary text-white' : 'text-muted-foreground hover:text-foreground'
-          )}
-          aria-label={opt.value}
-        >
-          <opt.icon className="h-4 w-4" />
-        </button>
-      ))}
-    </div>
+    <button
+      type="button"
+      onClick={toggleTheme}
+      aria-label={isDark ? 'เปลี่ยนเป็นโหมดสว่าง' : 'เปลี่ยนเป็นโหมดมืด'}
+      title={isDark ? 'โหมดสว่าง' : 'โหมดมืด'}
+      className={cn(
+        'relative flex h-9 w-9 items-center justify-center overflow-hidden rounded-lg',
+        'border border-border bg-card/50',
+        'text-muted-foreground',
+        'transition-all duration-200',
+        'hover:bg-secondary hover:text-foreground',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+        className
+      )}
+    >
+      <Sun
+        className={cn(
+          'absolute h-4 w-4 transition-all duration-300',
+          isDark
+            ? 'rotate-90 scale-0 opacity-0'
+            : 'rotate-0 scale-100 opacity-100'
+        )}
+      />
+
+      <Moon
+        className={cn(
+          'absolute h-4 w-4 transition-all duration-300',
+          isDark
+            ? 'rotate-0 scale-100 opacity-100'
+            : '-rotate-90 scale-0 opacity-0'
+        )}
+      />
+    </button>
   );
 }
