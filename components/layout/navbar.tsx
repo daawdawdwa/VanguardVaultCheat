@@ -49,9 +49,16 @@ export function Navbar() {
     <header className={cn('sticky top-0 z-40 w-full transition-all duration-300', scrolled ? 'glass-strong border-b border-border' : 'border-b border-transparent')}>
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <Link href="/" className="flex items-center gap-2 transition-transform hover:scale-105">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl gradient-primary glow-primary">
-            <Gamepad2 className="h-5 w-5 text-white" />
-          </div>
+          <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl">
+  <Image
+    src="components/layout/logo.png"
+    alt="VanguardVaultCheat"
+    width={36}
+    height={36}
+    className="h-9 w-9 object-contain"
+    priority
+  />
+</div>
           <span className="font-display text-lg font-bold tracking-tight">VanguardVaultCheat</span>
         </Link>
 
