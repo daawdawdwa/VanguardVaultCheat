@@ -1,12 +1,17 @@
 import { fetchProducts, fetchCategories } from '@/lib/helpers';
 import { ProductCard } from '@/components/product/product-card';
 import { ProductsFilters } from '@/components/product/products-filters';
+
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'สินค้าทั้งหมด',
   description: 'เรียกดูแคตตาล็อกคีย์เกมดิจิทัลพรีเมียมทั้งหมดของเรา',
 };
+
+// ป้องกัน Next.js ใช้ข้อมูลสินค้าเก่าจาก cache
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 type SearchParams = {
   category?: string;
@@ -16,23 +21,48 @@ type SearchParams = {
   max?: string;
 };
 
-export default async function ProductsPage({ searchParams }: { searchParams: SearchParams }) {
-  const sort = (searchParams.sort as 'newest' | 'popular' | 'price_asc' | 'price_desc') || 'newest';
+export default async function ProductsPage({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
+  const sort =
+    (searchParams.sort as
+      | 'newest'
+      | 'popular'
+      | 'price_asc'
+      | 'price_desc') || 'newest';
+
   const search = searchParams.q;
   const categorySlug = searchParams.category;
 
   const [{ products, error }, { categories }] = await Promise.all([
-    fetchProducts({ categorySlug, search, sort }),
+    fetchProducts({
+      categorySlug,
+      search,
+      sort,
+    }),
     fetchCategories(),
   ]);
 
   let filtered = products;
+
   if (searchParams.min) {
-    filtered = filtered.filter((p) => p.price >= Number(searchParams.min));
+    filtered = filtered.filter(
+      (p) => p.price >= Number(searchParams.min)
+    );
   }
+
   if (searchParams.max) {
-    filtered = filtered.filter((p) => p.price <= Number(searchParams.max));
+    filtered = filtered.filter(
+      (p) => p.price <= Number(searchParams.max)
+    );
   }
+
+  const categoryName = categorySlug
+    ? categories.find((c) => c.slug === categorySlug)?.name ??
+      categorySlug
+    : null;
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
@@ -40,9 +70,10 @@ export default async function ProductsPage({ searchParams }: { searchParams: Sea
         <h1 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">
           สินค้าทั้งหมด
         </h1>
+
         <p className="mt-2 text-muted-foreground">
           พบ {filtered.length} เกม
-          {categorySlug && ` ในหมวดหมู่ ${categories.find((c) => c.slug === categorySlug)?.name ?? categorySlug}`}
+          {categoryName && ` ในหมวดหมู่ ${categoryName}`}
         </p>
       </div>
 
@@ -54,12 +85,18 @@ export default async function ProductsPage({ searchParams }: { searchParams: Sea
         </div>
       ) : filtered.length === 0 ? (
         <div className="rounded-xl border border-border bg-card p-12 text-center">
-          <p className="text-muted-foreground">ไม่พบสินค้า ลองปรับเปลี่ยนตัวกรองของคุณดู</p>
+          <p className="text-muted-foreground">
+            ไม่พบสินค้า ลองปรับเปลี่ยนตัวกรองของคุณดู
+          </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {filtered.map((p, i) => (
-            <ProductCard key={p.id} product={p} index={i} />
+          {filtered.map((product, index) => (
+            <ProductCard
+              key={product.id}
+              product={product}
+              index={index}
+            />
           ))}
         </div>
       )}
