@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { supabaseServer } from './supabase-server';
 import type { Product, Category } from './types';
 
