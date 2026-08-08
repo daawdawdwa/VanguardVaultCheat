@@ -58,7 +58,9 @@ export default function AdminProductsPage() {
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<Product | null>(null);
 
-  const [form, setForm] = useState<ProductForm>(EMPTY_FORM);
+  const [form, setForm] = useState<ProductForm>({
+    ...EMPTY_FORM,
+  });
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -71,17 +73,28 @@ export default function AdminProductsPage() {
         supabase
           .from('products')
           .select('*, category:categories(*)')
-          .order('created_at', { ascending: false }),
+          .order('created_at', {
+            ascending: false,
+          }),
 
         supabase
           .from('categories')
           .select('*')
-          .order('name', { ascending: true }),
+          .order('name', {
+            ascending: true,
+          }),
       ]);
 
       if (productsError) {
-        console.error('[ADMIN PRODUCTS] Load products error:', productsError);
-        toast.error(`โหลดสินค้าไม่สำเร็จ: ${productsError.message}`);
+        console.error(
+          '[ADMIN PRODUCTS] Load products error:',
+          productsError,
+        );
+
+        toast.error(
+          `โหลดสินค้าไม่สำเร็จ: ${productsError.message}`,
+        );
+
         return;
       }
 
@@ -98,12 +111,22 @@ export default function AdminProductsPage() {
         return;
       }
 
-      setProducts((prods as unknown as Product[]) ?? []);
-      setCategories((cats as unknown as Category[]) ?? []);
-    } catch (error) {
-      console.error('[ADMIN PRODUCTS] Unexpected load error:', error);
+      setProducts(
+        (prods as unknown as Product[]) ?? [],
+      );
 
-      toast.error('เกิดข้อผิดพลาดในการโหลดข้อมูล');
+      setCategories(
+        (cats as unknown as Category[]) ?? [],
+      );
+    } catch (error) {
+      console.error(
+        '[ADMIN PRODUCTS] Unexpected load error:',
+        error,
+      );
+
+      toast.error(
+        'เกิดข้อผิดพลาดในการโหลดข้อมูล',
+      );
     } finally {
       setLoading(false);
     }
@@ -114,7 +137,10 @@ export default function AdminProductsPage() {
   }, [load]);
 
   const resetForm = () => {
-    setForm({ ...EMPTY_FORM });
+    setForm({
+      ...EMPTY_FORM,
+    });
+
     setEditing(null);
   };
 
@@ -132,11 +158,16 @@ export default function AdminProductsPage() {
       price: String(product.price ?? ''),
       discount: String(product.discount ?? 0),
       stock: String(product.stock ?? 0),
-      game_version: product.game_version ?? 'v1.0',
-      thumbnail_url: product.thumbnail_url ?? '',
-      category_id: product.category_id ?? '',
-      featured: Boolean(product.featured),
-      popular: Boolean(product.popular),
+      game_version:
+        product.game_version ?? 'v1.0',
+      thumbnail_url:
+        product.thumbnail_url ?? '',
+      category_id:
+        product.category_id ?? '',
+      featured:
+        Boolean(product.featured),
+      popular:
+        Boolean(product.popular),
     });
 
     setShowForm(true);
@@ -157,7 +188,9 @@ export default function AdminProductsPage() {
       .replace(/^-+|-+$/g, '');
   };
 
-  const save = async (event: React.FormEvent<HTMLFormElement>) => {
+  const save = async (
+    event: React.FormEvent<HTMLFormElement>,
+  ) => {
     event.preventDefault();
 
     if (saving) return;
@@ -169,28 +202,45 @@ export default function AdminProductsPage() {
       return;
     }
 
-    const price = Number.parseFloat(form.price);
+    const price = Number.parseFloat(
+      form.price,
+    );
 
     if (!Number.isFinite(price) || price < 0) {
-      toast.error('กรุณาระบุราคาสินค้าให้ถูกต้อง');
+      toast.error(
+        'กรุณาระบุราคาสินค้าให้ถูกต้อง',
+      );
+
       return;
     }
 
-    const discount = Number.parseInt(form.discount, 10);
+    const discount = Number.parseInt(
+      form.discount,
+      10,
+    );
 
     if (
       !Number.isFinite(discount) ||
       discount < 0 ||
       discount > 100
     ) {
-      toast.error('ส่วนลดต้องอยู่ระหว่าง 0 - 100%');
+      toast.error(
+        'ส่วนลดต้องอยู่ระหว่าง 0 - 100%',
+      );
+
       return;
     }
 
-    const stock = Number.parseInt(form.stock, 10);
+    const stock = Number.parseInt(
+      form.stock,
+      10,
+    );
 
     if (!Number.isFinite(stock) || stock < 0) {
-      toast.error('จำนวนสินค้าในคลังไม่ถูกต้อง');
+      toast.error(
+        'จำนวนสินค้าในคลังไม่ถูกต้อง',
+      );
+
       return;
     }
 
@@ -198,12 +248,10 @@ export default function AdminProductsPage() {
 
     try {
       /*
-       * ตรวจสอบ session ก่อนทุกครั้ง
-       * เพื่อให้แน่ใจว่า browser ใช้ user คนเดียวกับ
-       * ที่มีสิทธิ์ Admin จริง
+       * ตรวจสอบ session ปัจจุบัน
        */
       const {
-        data: { session },
+        data: sessionData,
         error: sessionError,
       } = await supabase.auth.getSession();
 
@@ -220,57 +268,81 @@ export default function AdminProductsPage() {
         return;
       }
 
+      const session = sessionData.session;
+
       if (!session?.user) {
-        toast.error('Session หมดอายุ กรุณาเข้าสู่ระบบใหม่');
+        toast.error(
+          'Session หมดอายุ กรุณาเข้าสู่ระบบใหม่',
+        );
+
         return;
       }
 
-      const role = session.user.app_metadata?.role;
+      const role =
+        session.user.app_metadata?.role;
 
-      console.log('[ADMIN PRODUCTS] Current user:', {
-        id: session.user.id,
-        email: session.user.email,
-        role,
-      });
+      console.log(
+        '[ADMIN PRODUCTS] Current user:',
+        {
+          id: session.user.id,
+          email: session.user.email,
+          role,
+        },
+      );
 
       if (role !== 'admin') {
-        toast.error('บัญชีนี้ไม่มีสิทธิ์ Admin');
+        toast.error(
+          'บัญชีนี้ไม่มีสิทธิ์ Admin',
+        );
+
         return;
       }
 
+      /*
+       * Payload สำหรับ products
+       */
       const payload = {
         title,
         slug: slugify(title),
-        description: form.description.trim() || null,
+        description:
+          form.description.trim() || null,
         price,
         discount,
         stock,
-        game_version: form.game_version.trim() || 'v1.0',
-        thumbnail_url: form.thumbnail_url.trim() || null,
-        category_id: form.category_id || null,
+        game_version:
+          form.game_version.trim() || 'v1.0',
+        thumbnail_url:
+          form.thumbnail_url.trim() || null,
+        category_id:
+          form.category_id || null,
         featured: form.featured,
         popular: form.popular,
       };
 
-      console.log('[ADMIN PRODUCTS] Saving:', {
-        editingId: editing?.id ?? null,
+      console.log(
+        '[ADMIN PRODUCTS] Save payload:',
         payload,
-      });
+      );
 
+      /*
+       * ============================
+       * UPDATE
+       * ============================
+       */
       if (editing) {
-        /*
-         * สำคัญ:
-         * .select('*') จะทำให้เรารู้ว่า UPDATE แตะ row จริงหรือไม่
-         */
+        console.log(
+          '[ADMIN PRODUCTS] Updating product:',
+          editing.id,
+        );
+
         const {
-          data: updatedProduct,
+          data: updatedProducts,
           error: updateError,
         } = await supabase
           .from('products')
           .update(payload)
           .eq('id', editing.id)
-          .select('*')
-          .single();
+          .select('*');
 
         if (updateError) {
           console.error(
@@ -285,33 +357,70 @@ export default function AdminProductsPage() {
           return;
         }
 
-        if (!updatedProduct) {
+        console.log(
+          '[ADMIN PRODUCTS] UPDATE RESULT:',
+          updatedProducts,
+        );
+
+        /*
+         * ถ้าไม่มี row กลับมา
+         * แปลว่า UPDATE ไม่ได้แตะสินค้า
+         */
+        if (
+          !updatedProducts ||
+          updatedProducts.length === 0
+        ) {
           console.error(
-            '[ADMIN PRODUCTS] UPDATE returned no row',
+            '[ADMIN PRODUCTS] UPDATE affected 0 rows',
           );
 
           toast.error(
-            'ไม่พบสินค้าที่ต้องการแก้ไข หรือไม่มีสิทธิ์แก้ไขสินค้า',
+            'ไม่สามารถอัปเดตสินค้าได้ ไม่พบข้อมูลหรือไม่มีสิทธิ์แก้ไข',
           );
 
           return;
         }
 
-        console.log(
-          '[ADMIN PRODUCTS] UPDATE SUCCESS:',
-          updatedProduct,
+        /*
+         * เอาข้อมูลที่เพิ่ง update
+         * มาอัปเดต state ทันที
+         */
+        const updatedProduct =
+          updatedProducts[0];
+
+        setProducts((currentProducts) =>
+          currentProducts.map((product) =>
+            product.id === editing.id
+              ? ({
+                  ...product,
+                  ...updatedProduct,
+                } as Product)
+              : product,
+          ),
         );
 
-        toast.success('อัปเดตสินค้าสำเร็จ');
-      } else {
+        toast.success(
+          'อัปเดตสินค้าสำเร็จ',
+        );
+      }
+
+      /*
+       * ============================
+       * INSERT
+       * ============================
+       */
+      else {
+        console.log(
+          '[ADMIN PRODUCTS] Creating product',
+        );
+
         const {
-          data: createdProduct,
+          data: createdProducts,
           error: insertError,
         } = await supabase
           .from('products')
           .insert(payload)
-          .select('*')
-          .single();
+          .select('*');
 
         if (insertError) {
           console.error(
@@ -327,16 +436,35 @@ export default function AdminProductsPage() {
         }
 
         console.log(
-          '[ADMIN PRODUCTS] INSERT SUCCESS:',
-          createdProduct,
+          '[ADMIN PRODUCTS] INSERT RESULT:',
+          createdProducts,
         );
 
-        toast.success('สร้างสินค้าสำเร็จ');
+        if (
+          !createdProducts ||
+          createdProducts.length === 0
+        ) {
+          toast.error(
+            'สร้างสินค้าไม่สำเร็จ ไม่ได้รับข้อมูลกลับจาก Database',
+          );
+
+          return;
+        }
+
+        toast.success(
+          'สร้างสินค้าสำเร็จ',
+        );
       }
 
+      /*
+       * ปิด Modal
+       */
       setShowForm(false);
       resetForm();
 
+      /*
+       * โหลดข้อมูลจาก Database ใหม่
+       */
       await load();
     } catch (error) {
       console.error(
@@ -344,7 +472,9 @@ export default function AdminProductsPage() {
         error,
       );
 
-      toast.error('เกิดข้อผิดพลาดขณะบันทึกสินค้า');
+      toast.error(
+        'เกิดข้อผิดพลาดขณะบันทึกสินค้า',
+      );
     } finally {
       setSaving(false);
     }
@@ -353,9 +483,10 @@ export default function AdminProductsPage() {
   const remove = async (id: string) => {
     if (deletingId) return;
 
-    const confirmed = window.confirm(
-      'คุณต้องการลบสินค้านี้ใช่หรือไม่?\n\nการดำเนินการนี้ไม่สามารถย้อนกลับได้',
-    );
+    const confirmed =
+      window.confirm(
+        'คุณต้องการลบสินค้านี้ใช่หรือไม่?\n\nการดำเนินการนี้ไม่สามารถย้อนกลับได้',
+      );
 
     if (!confirmed) return;
 
@@ -363,37 +494,76 @@ export default function AdminProductsPage() {
 
     try {
       const {
-        data: { session },
+        data: sessionData,
+        error: sessionError,
       } = await supabase.auth.getSession();
 
+      if (sessionError) {
+        console.error(
+          '[ADMIN PRODUCTS] Session error:',
+          sessionError,
+        );
+
+        toast.error(
+          `ตรวจสอบ Session ไม่สำเร็จ: ${sessionError.message}`,
+        );
+
+        return;
+      }
+
+      const session =
+        sessionData.session;
+
       if (!session?.user) {
-        toast.error('Session หมดอายุ กรุณาเข้าสู่ระบบใหม่');
+        toast.error(
+          'Session หมดอายุ กรุณาเข้าสู่ระบบใหม่',
+        );
+
         return;
       }
 
-      if (session.user.app_metadata?.role !== 'admin') {
-        toast.error('บัญชีนี้ไม่มีสิทธิ์ Admin');
+      if (
+        session.user.app_metadata?.role !==
+        'admin'
+      ) {
+        toast.error(
+          'บัญชีนี้ไม่มีสิทธิ์ Admin',
+        );
+
         return;
       }
 
-      const { data: deletedProduct, error } = await supabase
+      const {
+        data: deletedProducts,
+        error: deleteError,
+      } = await supabase
         .from('products')
         .delete()
         .eq('id', id)
-        .select('id')
-        .maybeSingle();
+        .select('id');
 
-      if (error) {
+      if (deleteError) {
         console.error(
           '[ADMIN PRODUCTS] DELETE ERROR:',
-          error,
+          deleteError,
         );
 
-        toast.error(`ลบสินค้าไม่สำเร็จ: ${error.message}`);
+        toast.error(
+          `ลบสินค้าไม่สำเร็จ: ${deleteError.message}`,
+        );
+
         return;
       }
 
-      if (!deletedProduct) {
+      console.log(
+        '[ADMIN PRODUCTS] DELETE RESULT:',
+        deletedProducts,
+      );
+
+      if (
+        !deletedProducts ||
+        deletedProducts.length === 0
+      ) {
         toast.error(
           'ไม่พบสินค้า หรือไม่มีสิทธิ์ลบสินค้านี้',
         );
@@ -401,16 +571,25 @@ export default function AdminProductsPage() {
         return;
       }
 
-      toast.success('ลบสินค้าสำเร็จ');
+      setProducts((currentProducts) =>
+        currentProducts.filter(
+          (product) =>
+            product.id !== id,
+        ),
+      );
 
-      await load();
+      toast.success(
+        'ลบสินค้าสำเร็จ',
+      );
     } catch (error) {
       console.error(
         '[ADMIN PRODUCTS] Delete unexpected error:',
         error,
       );
 
-      toast.error('เกิดข้อผิดพลาดขณะลบสินค้า');
+      toast.error(
+        'เกิดข้อผิดพลาดขณะลบสินค้า',
+      );
     } finally {
       setDeletingId(null);
     }
@@ -418,6 +597,7 @@ export default function AdminProductsPage() {
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between gap-4">
         <div>
           <h1 className="font-display text-2xl font-bold">
@@ -434,12 +614,14 @@ export default function AdminProductsPage() {
             type="button"
             variant="outline"
             onClick={() => void load()}
-            disabled={loading}
+            disabled={loading || saving}
             className="gap-2"
           >
             <RefreshCw
               className={`h-4 w-4 ${
-                loading ? 'animate-spin' : ''
+                loading
+                  ? 'animate-spin'
+                  : ''
               }`}
             />
 
@@ -451,6 +633,7 @@ export default function AdminProductsPage() {
           <Button
             type="button"
             onClick={openCreate}
+            disabled={saving}
             className="gradient-primary gap-2 text-white hover:opacity-90"
           >
             <Plus className="h-4 w-4" />
@@ -459,6 +642,7 @@ export default function AdminProductsPage() {
         </div>
       </div>
 
+      {/* Products */}
       {loading ? (
         <div className="flex h-40 items-center justify-center rounded-xl border border-border bg-card">
           <Loader2 className="h-6 w-6 animate-spin text-primary" />
@@ -485,6 +669,7 @@ export default function AdminProductsPage() {
               key={product.id}
               className="flex items-center gap-4 rounded-xl border border-border bg-card p-3"
             >
+              {/* Thumbnail */}
               <div className="h-12 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-secondary">
                 {product.thumbnail_url ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -500,20 +685,24 @@ export default function AdminProductsPage() {
                 )}
               </div>
 
+              {/* Info */}
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium">
                   {product.title}
                 </p>
 
                 <p className="text-xs text-muted-foreground">
-                  {product.category?.name ?? 'ไม่มีหมวดหมู่'}
+                  {product.category?.name ??
+                    'ไม่มีหมวดหมู่'}
                   {' • '}
-                  {product.game_version ?? 'ไม่ระบุเวอร์ชัน'}
+                  {product.game_version ??
+                    'ไม่ระบุเวอร์ชัน'}
                   {' • '}
                   คลัง: {product.stock ?? 0}
                 </p>
               </div>
 
+              {/* Actions */}
               <div className="flex items-center gap-2">
                 {product.featured && (
                   <Badge className="gradient-primary text-white">
@@ -528,13 +717,20 @@ export default function AdminProductsPage() {
                 )}
 
                 <span className="hidden text-sm font-semibold sm:inline">
-                  {formatPrice(product.price)}
+                  {formatPrice(
+                    product.price,
+                  )}
                 </span>
 
                 <button
                   type="button"
-                  onClick={() => openEdit(product)}
-                  disabled={saving || deletingId !== null}
+                  onClick={() =>
+                    openEdit(product)
+                  }
+                  disabled={
+                    saving ||
+                    deletingId !== null
+                  }
                   aria-label={`แก้ไข ${product.title}`}
                   className="flex h-8 w-8 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:text-foreground disabled:pointer-events-none disabled:opacity-50"
                 >
@@ -543,16 +739,20 @@ export default function AdminProductsPage() {
 
                 <button
                   type="button"
-                  onClick={() => void remove(product.id)}
+                  onClick={() =>
+                    void remove(product.id)
+                  }
                   disabled={
                     saving ||
-                    deletingId === product.id ||
+                    deletingId ===
+                      product.id ||
                     deletingId !== null
                   }
                   aria-label={`ลบ ${product.title}`}
                   className="flex h-8 w-8 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:text-destructive disabled:pointer-events-none disabled:opacity-50"
                 >
-                  {deletingId === product.id ? (
+                  {deletingId ===
+                  product.id ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
                     <Trash2 className="h-4 w-4" />
@@ -564,9 +764,11 @@ export default function AdminProductsPage() {
         </div>
       )}
 
+      {/* Edit / Create Modal */}
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
           <div className="glass-strong max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-border p-6">
+            {/* Modal Header */}
             <div className="mb-4 flex items-center justify-between">
               <div>
                 <h3 className="font-display text-lg font-semibold">
@@ -576,7 +778,7 @@ export default function AdminProductsPage() {
                 </h3>
 
                 {editing && (
-                  <p className="mt-1 text-xs text-muted-foreground">
+                  <p className="mt-1 break-all text-xs text-muted-foreground">
                     ID: {editing.id}
                   </p>
                 )}
@@ -593,10 +795,12 @@ export default function AdminProductsPage() {
               </button>
             </div>
 
+            {/* Form */}
             <form
               onSubmit={save}
               className="space-y-4"
             >
+              {/* Title */}
               <div className="space-y-2">
                 <Label htmlFor="title">
                   ชื่อสินค้า
@@ -609,7 +813,8 @@ export default function AdminProductsPage() {
                   onChange={(event) =>
                     setForm((current) => ({
                       ...current,
-                      title: event.target.value,
+                      title:
+                        event.target.value,
                     }))
                   }
                   className="bg-card"
@@ -617,6 +822,7 @@ export default function AdminProductsPage() {
                 />
               </div>
 
+              {/* Description */}
               <div className="space-y-2">
                 <Label htmlFor="desc">
                   รายละเอียด
@@ -628,7 +834,8 @@ export default function AdminProductsPage() {
                   onChange={(event) =>
                     setForm((current) => ({
                       ...current,
-                      description: event.target.value,
+                      description:
+                        event.target.value,
                     }))
                   }
                   className="bg-card"
@@ -637,6 +844,7 @@ export default function AdminProductsPage() {
                 />
               </div>
 
+              {/* Price / Discount */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="price">
@@ -653,7 +861,8 @@ export default function AdminProductsPage() {
                     onChange={(event) =>
                       setForm((current) => ({
                         ...current,
-                        price: event.target.value,
+                        price:
+                          event.target.value,
                       }))
                     }
                     className="bg-card"
@@ -675,7 +884,8 @@ export default function AdminProductsPage() {
                     onChange={(event) =>
                       setForm((current) => ({
                         ...current,
-                        discount: event.target.value,
+                        discount:
+                          event.target.value,
                       }))
                     }
                     className="bg-card"
@@ -684,6 +894,7 @@ export default function AdminProductsPage() {
                 </div>
               </div>
 
+              {/* Stock / Version */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="stock">
@@ -698,7 +909,8 @@ export default function AdminProductsPage() {
                     onChange={(event) =>
                       setForm((current) => ({
                         ...current,
-                        stock: event.target.value,
+                        stock:
+                          event.target.value,
                       }))
                     }
                     className="bg-card"
@@ -713,11 +925,14 @@ export default function AdminProductsPage() {
 
                   <Input
                     id="version"
-                    value={form.game_version}
+                    value={
+                      form.game_version
+                    }
                     onChange={(event) =>
                       setForm((current) => ({
                         ...current,
-                        game_version: event.target.value,
+                        game_version:
+                          event.target.value,
                       }))
                     }
                     className="bg-card"
@@ -726,6 +941,7 @@ export default function AdminProductsPage() {
                 </div>
               </div>
 
+              {/* Thumbnail */}
               <div className="space-y-2">
                 <Label htmlFor="thumb">
                   URL รูปภาพหน้าปก
@@ -734,11 +950,14 @@ export default function AdminProductsPage() {
                 <Input
                   id="thumb"
                   type="url"
-                  value={form.thumbnail_url}
+                  value={
+                    form.thumbnail_url
+                  }
                   onChange={(event) =>
                     setForm((current) => ({
                       ...current,
-                      thumbnail_url: event.target.value,
+                      thumbnail_url:
+                        event.target.value,
                     }))
                   }
                   placeholder="https://..."
@@ -747,6 +966,7 @@ export default function AdminProductsPage() {
                 />
               </div>
 
+              {/* Category */}
               <div className="space-y-2">
                 <Label htmlFor="cat">
                   หมวดหมู่
@@ -754,11 +974,14 @@ export default function AdminProductsPage() {
 
                 <select
                   id="cat"
-                  value={form.category_id}
+                  value={
+                    form.category_id
+                  }
                   onChange={(event) =>
                     setForm((current) => ({
                       ...current,
-                      category_id: event.target.value,
+                      category_id:
+                        event.target.value,
                     }))
                   }
                   disabled={saving}
@@ -768,28 +991,36 @@ export default function AdminProductsPage() {
                     ไม่มีหมวดหมู่
                   </option>
 
-                  {categories.map((category) => (
-                    <option
-                      key={category.id}
-                      value={category.id}
-                    >
-                      {category.name}
-                    </option>
-                  ))}
+                  {categories.map(
+                    (category) => (
+                      <option
+                        key={category.id}
+                        value={category.id}
+                      >
+                        {category.name}
+                      </option>
+                    ),
+                  )}
                 </select>
               </div>
 
+              {/* Flags */}
               <div className="space-y-3 rounded-xl border border-border bg-card/50 p-4">
                 <label className="flex cursor-pointer items-center gap-3 text-sm">
                   <input
                     type="checkbox"
-                    checked={form.featured}
+                    checked={
+                      form.featured
+                    }
                     onChange={(event) =>
-                      setForm((current) => ({
-                        ...current,
-                        featured:
-                          event.target.checked,
-                      }))
+                      setForm(
+                        (current) => ({
+                          ...current,
+                          featured:
+                            event.target
+                              .checked,
+                        }),
+                      )
                     }
                     disabled={saving}
                     className="h-4 w-4 accent-primary"
@@ -801,7 +1032,8 @@ export default function AdminProductsPage() {
                     </span>
 
                     <span className="text-xs text-muted-foreground">
-                      แสดงสินค้าในส่วน Featured
+                      แสดงสินค้าในส่วน
+                      Featured
                     </span>
                   </span>
                 </label>
@@ -809,13 +1041,18 @@ export default function AdminProductsPage() {
                 <label className="flex cursor-pointer items-center gap-3 text-sm">
                   <input
                     type="checkbox"
-                    checked={form.popular}
+                    checked={
+                      form.popular
+                    }
                     onChange={(event) =>
-                      setForm((current) => ({
-                        ...current,
-                        popular:
-                          event.target.checked,
-                      }))
+                      setForm(
+                        (current) => ({
+                          ...current,
+                          popular:
+                            event.target
+                              .checked,
+                        }),
+                      )
                     }
                     disabled={saving}
                     className="h-4 w-4 accent-primary"
@@ -827,12 +1064,14 @@ export default function AdminProductsPage() {
                     </span>
 
                     <span className="text-xs text-muted-foreground">
-                      แสดงสินค้าในส่วน Popular
+                      แสดงสินค้าในส่วน
+                      Popular
                     </span>
                   </span>
                 </label>
               </div>
 
+              {/* Submit */}
               <Button
                 type="submit"
                 disabled={saving}
