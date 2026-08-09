@@ -3,29 +3,27 @@
 import { useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
-
 import {
+  Activity,
+  Crown,
+  Gift,
+  ImagePlus,
+  Key,
   LayoutDashboard,
+  Loader2,
+  Newspaper,
   Package,
   ShoppingBag,
-  Key,
-  Users,
-  Ticket,
   Tag,
-  Newspaper,
-  Wallet,
-  Loader2,
+  Ticket,
+  Users,
   Users2,
-  Gift,
-  Crown,
-  ImagePlus,
-  Activity,
+  Wallet,
   FolderTree,
 } from 'lucide-react';
 
 import { useAuth } from '@/lib/auth-context';
 import { cn } from '@/lib/utils';
-
 import type { ReactNode } from 'react';
 
 const adminLinks = [
@@ -159,7 +157,7 @@ export function AdminShell({
         </h1>
 
         <p className="mt-1 text-sm text-muted-foreground">
-          จัดการร้านค้า สินค้า และลูกค้าของคุณ
+          จัดการร้านค้า สินค้า หมวดหมู่ และลูกค้าของคุณ
         </p>
       </div>
 
@@ -169,10 +167,8 @@ export function AdminShell({
             {adminLinks.map((link) => {
               const active =
                 pathname === link.href ||
-                (
-                  link.href !== '/admin' &&
-                  pathname.startsWith(`${link.href}/`)
-                );
+                (link.href !== '/admin' &&
+                  pathname.startsWith(`${link.href}/`));
 
               return (
                 <Link
