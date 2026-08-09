@@ -1,23 +1,14 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import {
-  Plus,
-  Trash2,
-  Loader2,
-  X,
-  RefreshCw,
-} from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
+import { Loader2, Pencil, Plus, Trash2, X } from 'lucide-react';
 
 import { supabase } from '@/lib/supabase';
-
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-
 import { toast } from 'sonner';
-
 import type { Coupon } from '@/lib/types';
 import { formatPrice } from '@/lib/helpers';
 
@@ -26,70 +17,71 @@ type CouponForm = {
   type: 'percent' | 'fixed';
   value: string;
   usage_limit: string;
+  expires_at: string;
+};
+
+const emptyForm: CouponForm = {
+  code: '',
+  type: 'percent',
+  value: '10',
+  usage_limit: '100',
+  expires_at: '',
 };
 
 export default function AdminCouponsPage() {
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [deleting, setDeleting] = useState<string | null>(null);
-  const [toggling, setToggling] = useState<string | null>(null);
-
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [togglingId, setTogglingId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [editing, setEditing] = useState<Coupon | null>(null);
+  const [form, setForm] = useState<CouponForm>(emptyForm);
 
-  const [form, setForm] = useState<CouponForm>({
-    code: '',
-    type: 'percent',
-    value: '10',
-    usage_limit: '100',
-  });
+  const load = useCallback(async () => {
+    setLoading(true);
 
-  const load = async () => {
-    try {
-      setLoading(true);
+    const { data, error } = await supabase
+      .from('coupons')
+      .select(
+        'id, code, type, value, active, expires_at, usage_limit, used_count, created_at',
+      )
+      .order('created_at', { ascending: false });
 
-      const {
-        data,
-        error,
-      } = await supabase
-        .from('coupons')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error('COUPONS LOAD ERROR:', error);
-
-        toast.error(
-          `โหลดคูปองไม่สำเร็จ: ${error.message}`,
-        );
-
-        return;
-      }
-
-      setCoupons((data as Coupon[]) ?? []);
-    } catch (error) {
-      console.error('COUPONS LOAD ERROR:', error);
-
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : 'ไม่สามารถโหลดคูปองได้',
-      );
-    } finally {
+    if (error) {
+      console.error('[AdminCoupons] load error:', error);
+      toast.error(`โหลดคูปองไม่สำเร็จ: ${error.message}`);
+      setCoupons([]);
       setLoading(false);
+      return;
     }
-  };
+
+    setCoupons((data as Coupon[]) ?? []);
+    setLoading(false);
+  }, []);
 
   useEffect(() => {
     void load();
-  }, []);
+  }, [load]);
 
   const openCreate = () => {
+    setEditing(null);
+    setForm(emptyForm);
+    setShowForm(true);
+  };
+
+  const openEdit = (coupon: Coupon) => {
+    setEditing(coupon);
+
     setForm({
-      code: '',
-      type: 'percent',
-      value: '10',
-      usage_limit: '100',
+      code: coupon.code,
+      type: coupon.type,
+      value: String(coupon.value),
+      usage_limit:
+        coupon.usage_limit === null ? '' : String(coupon.usage_limit),
+      expires_at: coupon.expires_at
+        ? new Date(coupon.expires_at).toISOString().slice(0, 16)
+        : '',
     });
 
     setShowForm(true);
@@ -99,25 +91,23 @@ export default function AdminCouponsPage() {
     if (saving) return;
 
     setShowForm(false);
+    setEditing(null);
+    setForm(emptyForm);
   };
 
-  const create = async (
-    event: React.FormEvent<HTMLFormElement>,
-  ) => {
+  const save = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (saving) return;
-
     const code = form.code.trim().toUpperCase();
-    const value = Number.parseFloat(form.value);
+    const value = Number(form.value);
 
     if (!code) {
-      toast.error('กรุณากรอกรหัสคูปอง');
+      toast.error('กรุณาระบุรหัสคูปอง');
       return;
     }
 
     if (!Number.isFinite(value) || value <= 0) {
-      toast.error('จำนวนส่วนลดไม่ถูกต้อง');
+      toast.error('มูลค่าส่วนลดต้องมากกว่า 0');
       return;
     }
 
@@ -133,344 +123,299 @@ export default function AdminCouponsPage() {
 
     if (
       usageLimit !== null &&
-      (!Number.isFinite(usageLimit) || usageLimit < 1)
+      (!Number.isInteger(usageLimit) || usageLimit < 1)
     ) {
-      toast.error('จำนวนครั้งที่ใช้งานต้องเป็นจำนวนเต็มมากกว่า 0');
+      toast.error('จำนวนการใช้งานต้องเป็นจำนวนเต็มตั้งแต่ 1 ขึ้นไป');
       return;
     }
 
+    const expiresAt = form.expires_at
+      ? new Date(form.expires_at).toISOString()
+      : null;
+
+    setSaving(true);
+
     try {
-      setSaving(true);
+      if (editing) {
+        const { data, error } = await supabase
+          .from('coupons')
+          .update({
+            code,
+            type: form.type,
+            value,
+            usage_limit: usageLimit,
+            expires_at: expiresAt,
+          })
+          .eq('id', editing.id)
+          .select(
+            'id, code, type, value, active, expires_at, usage_limit, used_count, created_at',
+          )
+          .single();
 
-      const {
-        data: {
-          session,
-        },
-      } = await supabase.auth.getSession();
+        if (error) {
+          console.error('[AdminCoupons] update error:', error);
+          toast.error(`อัปเดตคูปองไม่สำเร็จ: ${error.message}`);
+          return;
+        }
 
-      if (!session?.user) {
-        toast.error('กรุณาเข้าสู่ระบบใหม่');
-        return;
+        if (!data) {
+          toast.error('ไม่พบคูปองหรือไม่มีสิทธิ์แก้ไข');
+          return;
+        }
+
+        toast.success('อัปเดตคูปองสำเร็จ');
+      } else {
+        const { data, error } = await supabase
+          .from('coupons')
+          .insert({
+            code,
+            type: form.type,
+            value,
+            usage_limit: usageLimit,
+            expires_at: expiresAt,
+            active: true,
+          })
+          .select(
+            'id, code, type, value, active, expires_at, usage_limit, used_count, created_at',
+          )
+          .single();
+
+        if (error) {
+          console.error('[AdminCoupons] insert error:', error);
+          toast.error(`สร้างคูปองไม่สำเร็จ: ${error.message}`);
+          return;
+        }
+
+        if (!data) {
+          toast.error('ไม่สามารถสร้างคูปองได้');
+          return;
+        }
+
+        toast.success('สร้างคูปองสำเร็จ');
       }
 
-      const role = session.user.app_metadata?.role;
-
-      if (role !== 'admin' && role !== 'moderator') {
-        toast.error('บัญชีนี้ไม่มีสิทธิ์จัดการคูปอง');
-        return;
-      }
-
-      const {
-        data,
-        error,
-      } = await supabase
-        .from('coupons')
-        .insert({
-          code,
-          type: form.type,
-          value,
-          usage_limit: usageLimit,
-          active: true,
-        })
-        .select('*');
-
-      if (error) {
-        console.error('COUPON CREATE ERROR:', error);
-
-        toast.error(
-          `สร้างคูปองไม่สำเร็จ: ${error.message}`,
-        );
-
-        return;
-      }
-
-      if (!data || data.length === 0) {
-        toast.error('สร้างคูปองไม่สำเร็จ: ไม่พบข้อมูลที่ถูกสร้าง');
-        return;
-      }
-
-      toast.success('สร้างคูปองสำเร็จ');
-
-      setShowForm(false);
-
-      setForm({
-        code: '',
-        type: 'percent',
-        value: '10',
-        usage_limit: '100',
-      });
-
+      closeForm();
       await load();
-    } catch (error) {
-      console.error('COUPON CREATE ERROR:', error);
-
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : 'เกิดข้อผิดพลาดในการสร้างคูปอง',
-      );
     } finally {
       setSaving(false);
     }
   };
 
   const toggle = async (coupon: Coupon) => {
-    if (toggling) return;
+    if (togglingId) return;
+
+    setTogglingId(coupon.id);
 
     try {
-      setToggling(coupon.id);
-
-      const {
-        data: {
-          session,
-        },
-      } = await supabase.auth.getSession();
-
-      if (!session?.user) {
-        toast.error('กรุณาเข้าสู่ระบบใหม่');
-        return;
-      }
-
-      const role = session.user.app_metadata?.role;
-
-      if (role !== 'admin' && role !== 'moderator') {
-        toast.error('บัญชีนี้ไม่มีสิทธิ์จัดการคูปอง');
-        return;
-      }
-
-      const {
-        data,
-        error,
-      } = await supabase
+      const { data, error } = await supabase
         .from('coupons')
         .update({
           active: !coupon.active,
         })
         .eq('id', coupon.id)
-        .select('*');
+        .select('id, active')
+        .single();
 
       if (error) {
-        console.error('COUPON TOGGLE ERROR:', error);
-
-        toast.error(
-          `เปลี่ยนสถานะคูปองไม่สำเร็จ: ${error.message}`,
-        );
-
+        console.error('[AdminCoupons] toggle error:', error);
+        toast.error(`เปลี่ยนสถานะคูปองไม่สำเร็จ: ${error.message}`);
         return;
       }
 
-      if (!data || data.length === 0) {
-        toast.error(
-          'เปลี่ยนสถานะคูปองไม่สำเร็จ: ไม่มีสิทธิ์หรือไม่พบข้อมูล',
-        );
-
+      if (!data) {
+        toast.error('ไม่พบคูปองหรือไม่มีสิทธิ์แก้ไข');
         return;
       }
+
+      setCoupons((current) =>
+        current.map((item) =>
+          item.id === coupon.id
+            ? {
+                ...item,
+                active: data.active,
+              }
+            : item,
+        ),
+      );
 
       toast.success(
-        coupon.active
-          ? 'ปิดใช้งานคูปองแล้ว'
-          : 'เปิดใช้งานคูปองแล้ว',
-      );
-
-      await load();
-    } catch (error) {
-      console.error('COUPON TOGGLE ERROR:', error);
-
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : 'ไม่สามารถเปลี่ยนสถานะคูปองได้',
+        data.active
+          ? 'เปิดใช้งานคูปองสำเร็จ'
+          : 'ปิดใช้งานคูปองสำเร็จ',
       );
     } finally {
-      setToggling(null);
+      setTogglingId(null);
     }
   };
 
   const remove = async (id: string) => {
-    if (deleting) return;
+    if (deletingId) return;
 
     const confirmed = window.confirm(
-      'คุณต้องการลบคูปองนี้ใช่หรือไม่?\nการดำเนินการนี้ไม่สามารถย้อนกลับได้',
+      'คุณต้องการลบคูปองนี้ใช่หรือไม่?\n\nการลบจะไม่สามารถย้อนกลับได้',
     );
 
     if (!confirmed) return;
 
+    setDeletingId(id);
+
     try {
-      setDeleting(id);
-
-      const {
-        data: {
-          session,
-        },
-      } = await supabase.auth.getSession();
-
-      if (!session?.user) {
-        toast.error('กรุณาเข้าสู่ระบบใหม่');
-        return;
-      }
-
-      const role = session.user.app_metadata?.role;
-
-      if (role !== 'admin' && role !== 'moderator') {
-        toast.error('บัญชีนี้ไม่มีสิทธิ์ลบคูปอง');
-        return;
-      }
-
-      const {
-        data: deletedRows,
-        error,
-      } = await supabase
+      const { data, error } = await supabase
         .from('coupons')
         .delete()
         .eq('id', id)
-        .select('*');
-
-      console.log('COUPON DELETE RESULT:', {
-        deletedRows,
-        error,
-      });
+        .select('id')
+        .single();
 
       if (error) {
-        console.error('COUPON DELETE ERROR:', error);
-
-        toast.error(
-          `ลบคูปองไม่สำเร็จ: ${error.message}`,
-        );
-
+        console.error('[AdminCoupons] delete error:', error);
+        toast.error(`ลบคูปองไม่สำเร็จ: ${error.message}`);
         return;
       }
 
-      if (!deletedRows || deletedRows.length === 0) {
-        toast.error(
-          'ลบคูปองไม่สำเร็จ: ไม่พบข้อมูลหรือไม่มีสิทธิ์ลบ',
-        );
-
+      if (!data) {
+        toast.error('ไม่พบคูปองหรือไม่มีสิทธิ์ลบ');
         return;
       }
+
+      setCoupons((current) => current.filter((coupon) => coupon.id !== id));
 
       toast.success('ลบคูปองสำเร็จ');
-
-      await load();
-    } catch (error) {
-      console.error('COUPON DELETE ERROR:', error);
-
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : 'ไม่สามารถลบคูปองได้',
-      );
     } finally {
-      setDeleting(null);
+      setDeletingId(null);
     }
   };
 
   if (loading) {
     return (
-      <div className="flex h-32 items-center justify-center">
-        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+      <div className="flex h-64 items-center justify-center">
+        <Loader2 className="h-7 w-7 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="font-display text-xl font-semibold">
             คูปองส่วนลด ({coupons.length})
           </h2>
 
           <p className="mt-1 text-sm text-muted-foreground">
-            สร้าง เปิด/ปิด และลบคูปองส่วนลด
+            สร้าง แก้ไข เปิด/ปิด และลบคูปองส่วนลด
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => void load()}
-          >
-            <RefreshCw className="mr-2 h-4 w-4" />
-            รีเฟรช
-          </Button>
+        <Button
+          type="button"
+          onClick={openCreate}
+          className="gradient-primary text-white hover:opacity-90"
+        >
+          <Plus className="mr-2 h-4 w-4" />
+          เพิ่มคูปอง
+        </Button>
+      </div>
+
+      {coupons.length === 0 ? (
+        <div className="rounded-xl border border-border bg-card p-10 text-center">
+          <p className="text-sm text-muted-foreground">
+            ยังไม่มีคูปองส่วนลดในระบบ
+          </p>
 
           <Button
             type="button"
             onClick={openCreate}
-            className="gradient-primary text-white hover:opacity-90"
+            variant="outline"
+            className="mt-4"
           >
             <Plus className="mr-2 h-4 w-4" />
-            เพิ่มคูปอง
+            สร้างคูปองแรก
           </Button>
-        </div>
-      </div>
-
-      {coupons.length === 0 ? (
-        <div className="rounded-xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">
-          ยังไม่มีคูปองส่วนลดในขณะนี้
         </div>
       ) : (
         <div className="space-y-2">
           {coupons.map((coupon) => (
             <div
               key={coupon.id}
-              className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4 sm:flex-row sm:items-center"
+              className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4 transition-colors hover:bg-card/80 sm:flex-row sm:items-center"
             >
-              <code className="w-fit rounded-lg border border-border bg-background px-3 py-1.5 text-sm font-mono">
+              <code className="w-fit rounded-lg border border-border bg-background px-3 py-1.5 text-sm font-mono font-semibold">
                 {coupon.code}
               </code>
 
-              <div className="flex-1 text-sm text-muted-foreground">
-                {coupon.type === 'percent'
-                  ? `ลด ${coupon.value}%`
-                  : `ลด ${formatPrice(coupon.value)}`}
+              <div className="min-w-0 flex-1 text-sm text-muted-foreground">
+                <span>
+                  {coupon.type === 'percent'
+                    ? `ลด ${coupon.value}%`
+                    : `ลด ${formatPrice(coupon.value)}`}
+                </span>
 
-                {' • '}
+                <span className="mx-2">•</span>
 
-                ใช้งานแล้ว {coupon.used_count}/
-                {coupon.usage_limit ?? '∞'}
+                <span>
+                  ใช้งานแล้ว {coupon.used_count}/
+                  {coupon.usage_limit ?? '∞'}
+                </span>
+
+                {coupon.expires_at && (
+                  <>
+                    <span className="mx-2">•</span>
+                    <span>
+                      หมดอายุ{' '}
+                      {new Date(coupon.expires_at).toLocaleString('th-TH')}
+                    </span>
+                  </>
+                )}
               </div>
 
-              <Badge
-                variant={
-                  coupon.active
-                    ? 'default'
-                    : 'secondary'
-                }
-              >
-                {coupon.active
-                  ? 'เปิดใช้งาน'
-                  : 'ปิดใช้งาน'}
-              </Badge>
+              <div className="flex items-center gap-2">
+                <Badge
+                  variant={coupon.active ? 'default' : 'secondary'}
+                >
+                  {coupon.active ? 'เปิดใช้งาน' : 'ปิดใช้งาน'}
+                </Badge>
 
-              <button
-                type="button"
-                onClick={() => void toggle(coupon)}
-                disabled={toggling === coupon.id}
-                className="text-xs text-primary hover:underline disabled:opacity-50"
-              >
-                {toggling === coupon.id
-                  ? 'กำลังบันทึก...'
-                  : coupon.active
-                    ? 'ปิดใช้งาน'
-                    : 'เปิดใช้งาน'}
-              </button>
+                <button
+                  type="button"
+                  onClick={() => void toggle(coupon)}
+                  disabled={togglingId === coupon.id}
+                  className="rounded-lg px-2 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/10 disabled:opacity-50"
+                >
+                  {togglingId === coupon.id ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : coupon.active ? (
+                    'ปิดใช้งาน'
+                  ) : (
+                    'เปิดใช้งาน'
+                  )}
+                </button>
 
-              <button
-                type="button"
-                onClick={() => void remove(coupon.id)}
-                disabled={deleting === coupon.id}
-                className="flex h-8 w-8 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:cursor-not-allowed disabled:opacity-50"
-                aria-label={`ลบคูปอง ${coupon.code}`}
-              >
-                {deleting === coupon.id ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Trash2 className="h-4 w-4" />
-                )}
-              </button>
+                <button
+                  type="button"
+                  onClick={() => openEdit(coupon)}
+                  className="flex h-8 w-8 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+                  aria-label={`แก้ไข ${coupon.code}`}
+                  title="แก้ไขคูปอง"
+                >
+                  <Pencil className="h-4 w-4" />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => void remove(coupon.id)}
+                  disabled={deletingId === coupon.id}
+                  className="flex h-8 w-8 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-50"
+                  aria-label={`ลบ ${coupon.code}`}
+                  title="ลบคูปอง"
+                >
+                  {deletingId === coupon.id ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Trash2 className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
             </div>
           ))}
         </div>
@@ -478,15 +423,15 @@ export default function AdminCouponsPage() {
 
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-          <div className="glass-strong w-full max-w-md rounded-2xl border border-border p-6">
-            <div className="mb-6 flex items-center justify-between">
+          <div className="glass-strong max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-border p-6">
+            <div className="mb-5 flex items-center justify-between">
               <div>
                 <h3 className="font-display text-lg font-semibold">
-                  สร้างคูปองใหม่
+                  {editing ? 'แก้ไขคูปอง' : 'สร้างคูปองใหม่'}
                 </h3>
 
                 <p className="mt-1 text-xs text-muted-foreground">
-                  กำหนดส่วนลดและจำนวนครั้งที่ใช้งาน
+                  ข้อมูลจะถูกบันทึกลง Supabase โดยตรง
                 </p>
               </div>
 
@@ -494,128 +439,142 @@ export default function AdminCouponsPage() {
                 type="button"
                 onClick={closeForm}
                 disabled={saving}
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground"
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground disabled:opacity-50"
                 aria-label="ปิด"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
-            <form
-              onSubmit={create}
-              className="space-y-4"
-            >
+            <form onSubmit={save} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="code">
-                  รหัสคูปอง
-                </Label>
+                <Label htmlFor="coupon-code">รหัสคูปอง</Label>
 
                 <Input
-                  id="code"
+                  id="coupon-code"
                   required
+                  maxLength={100}
                   value={form.code}
                   onChange={(event) =>
-                    setForm({
-                      ...form,
+                    setForm((current) => ({
+                      ...current,
                       code: event.target.value.toUpperCase(),
-                    })
+                    }))
                   }
                   placeholder="SUMMER20"
-                  className="bg-card uppercase"
-                  disabled={saving}
+                  className="bg-card font-mono uppercase"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="coupon-type">
-                    ประเภทส่วนลด
-                  </Label>
+                  <Label htmlFor="coupon-type">ประเภทส่วนลด</Label>
 
                   <select
                     id="coupon-type"
                     value={form.type}
                     onChange={(event) =>
-                      setForm({
-                        ...form,
-                        type: event.target.value as
-                          | 'percent'
-                          | 'fixed',
-                      })
+                      setForm((current) => ({
+                        ...current,
+                        type: event.target.value as 'percent' | 'fixed',
+                      }))
                     }
-                    disabled={saving}
-                    className="flex h-10 w-full rounded-lg border border-border bg-card px-3 text-sm"
+                    className="flex h-10 w-full rounded-lg border border-border bg-card px-3 text-sm outline-none focus:ring-2 focus:ring-primary"
                   >
-                    <option value="percent">
-                      เปอร์เซ็นต์ (%)
-                    </option>
-
-                    <option value="fixed">
-                      จำนวนเงิน (฿)
-                    </option>
+                    <option value="percent">เปอร์เซ็นต์ (%)</option>
+                    <option value="fixed">จำนวนเงินคงที่ (฿)</option>
                   </select>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="coupon-value">
-                    จำนวนส่วนลด
-                  </Label>
+                  <Label htmlFor="coupon-value">มูลค่าส่วนลด</Label>
 
                   <Input
                     id="coupon-value"
                     type="number"
-                    min="0"
+                    min="0.01"
                     step="0.01"
                     required
                     value={form.value}
                     onChange={(event) =>
-                      setForm({
-                        ...form,
+                      setForm((current) => ({
+                        ...current,
                         value: event.target.value,
-                      })
+                      }))
                     }
                     className="bg-card"
-                    disabled={saving}
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="usage-limit">
-                  จำนวนครั้งที่ใช้ได้
+                <Label htmlFor="coupon-limit">
+                  จำกัดจำนวนการใช้งาน
                 </Label>
 
                 <Input
-                  id="usage-limit"
+                  id="coupon-limit"
                   type="number"
                   min="1"
                   value={form.usage_limit}
                   onChange={(event) =>
-                    setForm({
-                      ...form,
+                    setForm((current) => ({
+                      ...current,
                       usage_limit: event.target.value,
-                    })
+                    }))
                   }
                   placeholder="เว้นว่าง = ไม่จำกัด"
                   className="bg-card"
-                  disabled={saving}
                 />
               </div>
 
-              <Button
-                type="submit"
-                disabled={saving}
-                className="w-full gradient-primary text-white hover:opacity-90"
-              >
-                {saving ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    กำลังสร้าง...
-                  </>
-                ) : (
-                  'สร้างคูปอง'
-                )}
-              </Button>
+              <div className="space-y-2">
+                <Label htmlFor="coupon-expires">
+                  วันหมดอายุ
+                </Label>
+
+                <Input
+                  id="coupon-expires"
+                  type="datetime-local"
+                  value={form.expires_at}
+                  onChange={(event) =>
+                    setForm((current) => ({
+                      ...current,
+                      expires_at: event.target.value,
+                    }))
+                  }
+                  className="bg-card"
+                />
+              </div>
+
+              <div className="flex gap-2 pt-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={closeForm}
+                  disabled={saving}
+                  className="flex-1"
+                >
+                  ยกเลิก
+                </Button>
+
+                <Button
+                  type="submit"
+                  disabled={saving}
+                  className="flex-1 gradient-primary text-white hover:opacity-90"
+                >
+                  {saving ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      กำลังบันทึก...
+                    </>
+                  ) : editing ? (
+                    'บันทึกการเปลี่ยนแปลง'
+                  ) : (
+                    'สร้างคูปอง'
+                  )}
+                </Button>
+              </div>
             </form>
           </div>
         </div>
