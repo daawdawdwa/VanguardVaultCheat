@@ -50,7 +50,7 @@ export default async function HomePage() {
             </div>
 
             <h2 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">
-              เกมพรีเมียมคัดสรรพิเศษ
+              คีย์พรีเมียมคัดสรรพิเศษ
             </h2>
           </div>
 
